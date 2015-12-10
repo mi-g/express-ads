@@ -40,6 +40,7 @@ module.exports = function(app,config) {
 		staticMaxAge: '1h',
 		debugDeliver: false,
 		debugData: false,
+		debugLiveTemplate: false,
 		auth: function(req,res,next) {
 			console.warn("EAS - admin interface authentication not set");
 			next();
@@ -78,10 +79,42 @@ module.exports = function(app,config) {
 	var adminTemplate = ejs.compile(fs.readFileSync(__dirname + "/views/admin.ejs","utf-8"));
 	var adminPageTemplate = ejs.compile(fs.readFileSync(__dirname + "/views/admin-page.ejs","utf-8"));
 	
-	function AdminTemplate() {
-		return adminTemplate({
-			config: config,
-		});
+	function AdminTemplate(callback) {
+		if(config.debugLiveTemplate) {
+			if(callback) {
+				fs.readFile(__dirname + "/views/admin.ejs","utf-8",function(err,data) {
+					if(err) {
+						console.warn("EAS - Could not read template file",err);
+						callback(adminTemplate({
+							config: config,
+						}));
+					} else {
+						var template =ejs.compile(data); 
+						callback(template({
+							config: config,
+						}));
+					}
+				});
+			} else {
+				var data = fs.readFileSync(__dirname + "/views/admin.ejs","utf-8");
+				if(data) {
+					var template =ejs.compile(data); 
+					return template({
+						config: config,
+					});					
+				} else
+					return adminTemplate({
+						config: config,
+					}); 
+			}
+		} else {
+			var data = adminTemplate({
+				config: config,
+			});
+			if(callback)
+				callback();
+			return data;
+		}
 	}
 	
 	function Deliver(req) {
@@ -172,13 +205,15 @@ module.exports = function(app,config) {
 
 	/* define routes */
 	app.get(config.adminPath,function(req,res) {
-		res.send(adminPageTemplate({
-			config: config,
-			adminUI: AdminTemplate(),
-			stylesHTML: stylesHTML,
-			scriptsHTML: scriptsHTML,
-			version: modPackage.version,
-		}));
+		AdminTemplate(function(adminUI) {
+			res.send(adminPageTemplate({
+				config: config,
+				adminUI: adminUI,
+				stylesHTML: stylesHTML,
+				scriptsHTML: scriptsHTML,
+				version: modPackage.version,
+			}));			
+		});
 	});
 	
 	app.get(config.adminPath+"/public/:file",function(req,res) {
