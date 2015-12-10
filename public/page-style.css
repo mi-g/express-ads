@@ -1,0 +1,12 @@
+
+.eas header {
+	background-color: #333;
+	color: #ccc;
+	font-weight: 800;
+	text-align: center;
+	padding: 8px 0;
+}
+
+.eas .eas-tlb {
+	margin: 8px;
+}

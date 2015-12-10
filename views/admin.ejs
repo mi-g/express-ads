@@ -1,0 +1,589 @@
+
+<script>
+	var easAPI = "<%= config.adminPath %>/api"; 
+</script>
+
+<div class="eas" ng-controller="EASCtrl" ng-cloak>
+
+	<div class="loading" ng-style="{visibility: loading?'visible':'hidden'}">Loading...</div>
+
+	<div id="ads-section" class="!loading">
+		<ul class="nav nav-tabs" role="tablist">
+			<li class="pull-right"><span><a ng-click="getAds()" class="btn" title="Refresh"><span class="fa fa-refresh"></span></a></span></li>
+<% if(config.debugData) { %>
+  			<li role="presentation tab" ng-class="{active:context.tab=='debug'}"><a ng-click="context.tab='debug'" aria-controls="debug" role=" tab">Debug</a></li>
+<% } %>
+  			<li role="presentation tab" ng-class="{active:context.tab=='campaign'}"><a ng-click="context.tab='campaign'" role=" tab">Campaigns</a></li>
+  			<li role="presentation tab" ng-class="{active:context.tab=='banner'}"><a ng-click="context.tab='banner'" role=" tab">Banners</a></li>
+  			<li role="presentation tab" ng-class="{active:context.tab=='inventory'}"><a ng-click="context.tab='inventory'" role=" tab">Inventory</a></li>
+		</ul>
+		<div class="tab-content">
+		
+<% if(config.debugData) { %>
+   			<div role="tabpanel" class="tab-pane" ng-class="{active:context.tab=='debug'}">
+   				<pre>{{ prettyAds() }}</pre>
+   			</div>
+<% } %>
+
+   			<div role="tabpanel" class="tab-pane" ng-class="{active:context.tab=='campaign'}">   				
+   				<div ng-show="context.campaign">
+   					<div class="eas-tb">
+						<div class="btn-group">
+							<a ng-click="cancelCampaign()" class="btn btn-default">
+								<span class="fa fa-ban"> Cancel</span></a></li>
+							<a ng-show="!context.campaign.id" ng-click="saveCampaign()" class="btn btn-primary">
+								<span class="fa fa-plus"> Add</span></a>
+							<a ng-show="context.campaign.id && changedCampaign()" ng-click="saveCampaign()" class="btn btn-primary">
+								<span class="fa fa-upload"> Update</span></a>
+						</div>
+					</div>
+   					
+					<form class="form-horizontal" role="form">
+
+					    <div class="form-group">
+					        <label for="camp-name" class="col-sm-2 control-label">Name</label>
+					        <div class="col-sm-4">
+					            <input type="text" class="form-control" id="camp-name"  ng-model="context.campaign.hid"  placeholder="Human readable name">
+					        </div>
+					        <label ng-show="context.campaign.id" for="camp-id" class="col-sm-1 control-label">Id</label>
+					        <div ng-show="context.campaign.id" class="col-sm-2">
+					            <input type="text" readonly class="form-control" id="camp-id" ng-model="context.campaign.id">
+					        </div>
+
+							<div class="col-sm-1"></div>
+							
+							<div class="btn-group" class="col-sm-2">
+								<input type="checkbox" id="camp-active" autocomplete="off" 
+									ng-model="context.campaign.active" style="display: none"/>
+								<label for="camp-active" class="btn btn-default">
+									<span class="glyphicon"
+									ng-class="{ 'glyphicon-ok':context.campaign.active,'glyphicon-pause':!context.campaign.active}"
+									></span> <span>
+									</span>
+								</label> 
+								<label for="camp-active" 
+									ng-class="{ 'btn-default':!context.campaign.active,'btn-success':context.campaign.active}"
+									class="btn">{{context.campaign.active?"Active":"Paused"}}</label>
+							</div>
+						</div>
+					    
+		                <div class="form-group">
+		                    <label for="camp-type" class="col-sm-2 control-label">Type</label>
+		                    <div class="col-sm-3">
+								<select id="camp-type" class="form-control" 
+									ng-options="m.value as m.label for m in campTypes" ng-model="context.campaign.type">
+		                        </select>
+		                    </div>
+		                    <label for="camp-value" class="col-sm-3 control-label">
+		                    	{{campTypeValueLabel(context.campaign.type)}}</label>	                    	
+		                    <div class="col-sm-2">
+					            <input type="number" class="form-control" id="camp-value" ng-model="context.campaign.value">
+		                    </div>
+		                </div>
+
+					    <div class="form-group">
+					        <label for="camp-sesscap" class="col-sm-2 control-label">Session cap</label>
+					        <div class="col-sm-2">
+					            <input type="number" class="form-control" id="camp-sesscap"  ng-model="context.campaign.cap">
+					        </div>
+					        <label for="camp-pagecap" class="col-sm-2 control-label">Page cap</label>
+					        <div class="col-sm-2">
+					            <input type="number" class="form-control" id="camp-pagecap"  ng-model="context.campaign.pagecap">
+					        </div>
+					    </div>
+					    
+					    <div class="form-group">
+					        <label class="col-sm-2 control-label">Schedule</label>
+		                    <div class="col-sm-2">
+								<select class="form-control" 
+									ng-options="m.value as m.label for m in startTypes" ng-model="context.startType">
+		                        </select>
+		                    </div>
+		                    <div class="col-sm-3">
+		                    	<div vdh-date-time-picker ng-show="context.startType=='date'" ng-model="context.start"></div>
+		                    </div>
+		                    <div ng-show="!mustHaveEnd()" class="col-sm-2">
+								<select class="form-control" 
+									ng-options="m.value as m.label for m in endTypes" ng-model="context.endType">
+		                        </select>
+		                    </div>
+		                    <div ng-show="mustHaveEnd()" class="col-sm-2 control-label">
+		                    	<label>Ends at</label>
+		                    </div>
+		                    <div class="col-sm-3">
+		                    	<div vdh-date-time-picker ng-show="context.endType=='date'" ng-model="context.end"></div>
+		                    </div>
+					    </div>
+					    
+					    <div class="form-group">
+					        <label class="col-sm-2 control-label">Banners</label>
+					        
+					        <div class="col-sm-6">
+								<ui-select multiple
+									ng-model="context.campaign.banners" theme="bootstrap"> 
+									<ui-select-match placeholder="Select banners...">{{$item.hid}}</ui-select-match> 
+									<ui-select-choices repeat="ban.id as ban in bannersArray() | propsFilter: {hid: $select.search}">
+										{{ban.hid}} 
+									</ui-select-choices>
+								</ui-select>
+					        </div>
+					    </div>
+
+					    <div class="form-group">
+					        <label for="camp-description" class="col-sm-2 control-label">Description</label>
+					        <div class="col-sm-10">
+					            <textarea class="form-control" rows="2" id="camp-description" ng-model="context.campaign.description"></textarea>
+					        </div>
+					    </div>
+   					</form>
+   					
+   				</div>
+   				<div ng-show="!context.campaign">
+   					<div class="eas-tb">
+						<div class="btn-group">
+	 						<a ng-click="newCampaign()" class="btn btn-default"><span class="fa fa-plus"> New Campaign</span></a>
+	 					</div>
+ 					</div>
+   					
+   					<div ng-show="campaignCount()==0">No campaign defined</div>
+   					<table ng-show="campaignCount()>0" class="table table-striped table-hover">
+   						<thead>
+	   						<tr>
+	   							<th></th>
+	   							<th>Name</th>
+	   							<th>Status</th>
+	   							<th>Id</th>
+	   							<th>Type</th>
+	   							<th>Remains</th>
+	   							<th>Imprs</th>
+	   							<th>Clicks</th>
+	   							<th>CTR %</th>
+	   							<th></th>
+	   						</tr>
+	   					</thead>
+	   					<tbody>
+	   						<tr ng-repeat="camp in data.ads.campaign | toArray" ng-click="selectCampaign(camp)">
+	   							<td><a ng-click="$event.stopPropagation();removeCampaign(camp)" title="Remove campaign"><span class="fa fa-trash"></span></a></td>
+	   							<td>{{camp.hid}}</td>
+	   							<td>{{campaignStatus(camp)}}</td>
+	   							<td>{{camp.id}}</td>
+	   							<td>{{campTypeLabel(camp.type)}}</td>
+	   							<td>{{campRemains(camp.id)}}</td>
+	   							<td>{{data.stats.total.cam.impr[camp.id] || 0 }}</td>
+	   							<td>{{data.stats.total.cam.click[camp.id] || 0 }}</td>
+	   							<td>{{ calcCTR(data.stats.total.cam,camp.id)}} </td>
+	   							<td><a ng-click="$event.stopPropagation();clearStats('cam',camp.id)" title="Clear stats"><span class="fa fa-eraser"></span></a></td>
+	   						</tr>
+   						</tbody>
+   					</table>
+   				</div>
+   			</div>
+
+   			<div role="tabpanel" class="tab-pane" ng-class="{active:context.tab=='banner'}">   				
+   				<div ng-show="context.banner">
+   					<div class="eas-tb">
+						<div class="btn-group">
+	 						<a ng-click="cancelBanner()" class="btn btn-default"><span class="fa fa-ban"> Cancel</span></a>
+	 						<a ng-show="!context.banner.id" ng-click="saveBanner()" class="btn btn-primary"><span class="fa fa-plus"> Add</span></a>
+	 						<a ng-show="context.banner.id && changedBanner()" ng-click="saveBanner()" class="btn btn-primary"><span class="fa fa-plus"> Update</span></a>
+	 					</div>
+	 				</div>
+   					
+					<form class="form-horizontal" role="form">
+					    <div class="form-group">
+					        <label for="ban-name" class="col-sm-2 control-label">Name</label>
+					        <div class="col-sm-4">
+					            <input type="text" class="form-control" id="ban-name"  ng-model="context.banner.hid"  placeholder="Human readable name">
+					        </div>
+					        <label ng-show="context.banner.id" for="ban-id" class="col-sm-1 control-label">Id</label>
+					        <div ng-show="context.banner.id" class="col-sm-2">
+					            <input type="text" readonly class="form-control" id="ban-id" ng-model="context.banner.id" placeholder="Human readable name">
+					        </div>
+
+							<div class="col-sm-1"></div>
+							
+							<div class="btn-group" class="col-sm-2">
+								<input type="checkbox" id="ban-active" autocomplete="off" 
+									ng-model="context.banner.active" style="display: none"/>
+								<label for="ban-active" class="btn btn-default">
+									<span class="glyphicon"
+									ng-class="{ 'glyphicon-ok':context.banner.active,'glyphicon-pause':!context.banner.active}"
+									></span> <span>
+									</span>
+								</label> 
+								<label for="ban-active" 
+									ng-class="{ 'btn-default':!context.banner.active,'btn-success':context.banner.active}"
+									class="btn">{{context.banner.active?"Active":"Paused"}}</label>
+							</div>
+
+					    </div>
+					    
+					    <div class="form-group">
+		                    <label for="ban-type" class="col-sm-2 control-label">Type</label>
+		                    <div class="col-sm-3">
+								<select id="ban-type" class="form-control"  ng-show="!context.banner.id" 
+									ng-options="m.value as m.label for m in bannerTypes" ng-model="context.banner.type">
+		                        </select>
+		                        <span ng-show="context.banner.id">{{bannerTypeValueLabel(context.banner.type)}}</span>
+		                    </div>
+		                </div>
+
+					    <div class="form-group">
+					        <label for="ban-link" class="col-sm-2 control-label">Link</label>
+					        <div class="col-sm-10">
+					            <input type="text" class="form-control" id="ban-link"  ng-model="context.banner.link"  placeholder="Target link for the banner">
+					        </div>
+					    </div>
+					    
+					    <div class="form-group">
+					        <label for="ban-alt" class="col-sm-2 control-label">Alt</label>
+					        <div class="col-sm-10">
+					            <input type="text" class="form-control" id="ban-alt"  ng-model="context.banner.alt"  placeholder="Alt text for the banner">
+					        </div>
+					    </div>
+					    
+					    <div class="form-group">
+					        <label for="ban-sesscap" class="col-sm-2 control-label">Session cap</label>
+					        <div class="col-sm-2">
+					            <input type="number" class="form-control" id="ban-sesscap"  ng-model="context.banner.cap">
+					        </div>
+					        <label for="ban-pagecap" class="col-sm-2 control-label">Page cap</label>
+					        <div class="col-sm-2">
+					            <input type="number" class="form-control" id="ban-pagecap"  ng-model="context.banner.pagecap">
+					        </div>
+					    </div>
+					    					    
+					    <div class="form-group">
+					        <label class="col-sm-2 control-label">Inventory</label>
+
+					        <div class="col-sm-6">
+								<ui-select multiple
+									ng-model="context.banner.inventory" theme="bootstrap"> 
+									<ui-select-match placeholder="Select inventory...">{{$item.hid}}</ui-select-match> 
+									<ui-select-choices repeat="inv.id as inv in inventoryArray() | propsFilter: {hid: $select.search}">
+										{{inv.hid}} 
+									</ui-select-choices>
+								</ui-select>
+					        </div>
+					    </div>
+					    
+					    <div class="form-group" ng-show="context.banner.type=='image'">
+					        <label for="ban-images" class="col-sm-2 control-label">Images</label>
+					        <div class="col-sm-10">
+					        	<div ng-show="bannerImagesCount()==0">No images loaded for this banner</div>
+					        	<div ng-show="bannerImagesCount()>0" id="ban-images">
+					        		<table class="table table-striped table-hover">
+					        			<thead>
+					   						<tr>
+					   							<th></th>
+					   							<th>Id</th>
+					   							<th>Type</th>
+					   							<th>Size</th>
+					   							<th>Imprs</th>
+					   							<th>Clicks</th>
+					   							<th>CTR %</th>
+					   							<th></th>
+					   						</tr>
+					   					</thead>
+					   					<tbody>
+						        			<tr ng-repeat="img in context.banner.images" 
+						        				vdh-tooltip="bannerImageTooltip(img)">
+					   							<td><a ng-click="$event.stopPropagation();removeBannerImage(img)"><span class="fa fa-trash"></span></a></td>
+						        				<td>{{img.id}}</td>
+						        				<td>{{ img.url ? 'External':'Local' }}</td>
+						        				<td>{{img.size}}</td>
+					   							<td>{{data.stats.total.ima.impr[img.id] || 0 }}</td>
+					   							<td>{{data.stats.total.ima.click[img.id] || 0 }}</td>
+					   							<td>{{ calcCTR(data.stats.total.ima,img.id)}} </td>
+					   							<td><a ng-click="$event.stopPropagation();clearStats('ima',img.id)" title="Clear stats"><span class="fa fa-eraser"></span></a></td>
+						        			</tr>
+					        			</tbody>
+					        		</table>
+					        	</div>
+					        	
+					        </div>
+					    </div>
+
+					    <div class="form-group" ng-show="context.banner.id" ng-show="context.banner.type=='image'">
+					        <label for="ban-image" class="col-sm-2 control-label">Add image</label>
+					        <div class="col-sm-6" ng-class="{warning:context.addImageError}">
+
+								<div class="input-group">
+									<input type="text" class="form-control" id="ban-image"
+										placeholder="Banner image URL" ng-model="context.addImageUrl">
+									<span class="input-group-btn">
+										<button class="btn btn-default" type="button" ng-click="context.addImageUrl=''">
+											<span class="glyphicon glyphicon-remove"></span>
+										</button>
+									</span>
+								</div>
+
+								<div ng-show="context.addImageError" class="error">{{context.addImageError}}</div>
+					        </div>
+					        <div class="col-sm-4 btn-group">
+					            	<a ng-click="addBannerImage()" class="btn btn-default">Load image</a>
+					            	<a ng-click="addBannerImageUrl()" class="btn btn-default">External URL</a>
+					        </div>
+					    </div>
+
+					    <div class="form-group">
+					        <label class="col-sm-2 control-label">Filters</label>
+					        <div class="col-sm-3">
+								<select class="form-control" 
+									ng-options="m.value as m.label for m in countryTypes" ng-model="context.banner.countryType">
+		                        </select>
+					        </div>
+					        <div class="col-sm-3">
+								<select class="form-control" 
+									ng-options="m.value as m.label for m in browserTypes" ng-model="context.banner.browserType">
+		                        </select>
+					        </div>
+					        <div class="col-sm-3">
+								<select class="form-control" 
+									ng-options="m.value as m.label for m in osTypes" ng-model="context.banner.osType">
+		                        </select>
+					        </div>
+					    </div>
+
+					    <div class="form-group" 
+					    	ng-show="context.banner.countryType!='any' || context.banner.browserType!='any' || context.banner.osType!='any'">
+					        <label class="col-sm-2 control-label"></label>
+					        <div class="col-sm-3">
+								<ui-select ng-show="context.banner.countryType!='any'" multiple
+									ng-model="context.banner.countries" theme="bootstrap"> 
+									<ui-select-match placeholder="Select country...">{{$item.name}}</ui-select-match> 
+									<ui-select-choices repeat="country.code as country in countries | propsFilter: {name: $select.search}">
+										{{country.name}} 
+									</ui-select-choices>
+								</ui-select>
+					        </div>
+					        <div class="col-sm-3">
+								<ui-select ng-show="context.banner.browserType!='any'" multiple
+									ng-model="context.banner.browsers" theme="bootstrap"> 
+									<ui-select-match placeholder="Select browser...">{{$item.value}}</ui-select-match> 
+									<ui-select-choices repeat="browser.key as (key, browser) in browserFamilies | propsFilter: {value: $select.search}">
+										{{browser.value}} 
+									</ui-select-choices>
+								</ui-select>
+					        </div>
+					        <div class="col-sm-3">
+								<ui-select ng-show="context.banner.osType!='any'" multiple
+									ng-model="context.banner.oss" theme="bootstrap"> 
+									<ui-select-match placeholder="Select OS...">{{$item.value}}</ui-select-match> 
+									<ui-select-choices repeat="os.key as (key, os) in osFamilies | propsFilter: {value: $select.search}">
+										{{os.value}} 
+									</ui-select-choices>
+								</ui-select>
+					        </div>
+					    </div>
+
+					    <div class="form-group">
+					        <label for="ban-description" class="col-sm-2 control-label">Description</label>
+					        <div class="col-sm-10">
+					            <textarea class="form-control" rows="2" id="ban-description" ng-model="context.banner.description"></textarea>
+					        </div>
+					    </div>
+
+
+   					</form>
+   					
+   				</div>
+   				<div ng-show="!context.banner">
+   					<div class="eas-tb">
+						<div class="btn-group">
+	 						<a ng-click="newBanner()" class="btn btn-default"><span class="fa fa-plus"> New Banner</span></a>
+	 					</div>
+ 					</div>
+   					<div ng-show="bannerCount()==0">No banner defined</div>
+   					<table ng-show="bannerCount()>0" class="table table-striped table-hover">
+   						<thead>
+	   						<tr>
+	   							<th></th>
+	   							<th>Name</th>
+	   							<th>Status</th>
+	   							<th>Id</th>
+	   							<th>Imprs</th>
+	   							<th>Clicks</th>
+	   							<th>CTR %</th>
+	   							<th></th>
+	   						</tr>
+	   					</thead>
+	   					<tbody>
+	   						<tr ng-repeat="ban in data.ads.banner | toArray" ng-click="selectBanner(ban)">
+	   							<td><a ng-click="$event.stopPropagation();removeBanner(ban)" title="Remove banner"><span class="fa fa-trash"></span></a></td>
+	   							<td>{{ban.hid}}</td>
+	   							<td>{{ban.active?"Active":"Paused"}}</td>
+	   							<td>{{ban.id}}</td>
+	   							<td>{{data.stats.total.ban.impr[ban.id] || 0 }}</td>
+	   							<td>{{data.stats.total.ban.click[ban.id] || 0 }}</td>
+	   							<td>{{ calcCTR(data.stats.total.ban,ban.id)}} </td>
+	   							<td><a ng-click="$event.stopPropagation();clearStats('ban',ban.id)" title="Clear stats"><span class="fa fa-eraser"></span></a></td>
+	   						</tr>
+	   					</tbody>
+   					</table>
+   				</div>
+   			</div>
+   			
+   			<div role="tabpanel" class="tab-pane" ng-class="{active:context.tab=='inventory'}">   				
+   				<div ng-show="context.inventory">
+   					<div class="eas-tb">
+						<div class="btn-group">
+	 						<a ng-click="cancelInventory()" class="btn btn-default"><span class="fa fa-ban"> Cancel</span></a>
+	 						<a ng-show="!context.inventory.id" ng-click="saveInventory()" class="btn btn-primary"><span class="fa fa-plus"> Add</span></a>
+	 						<a ng-show="context.inventory.id && changedInventory()" ng-click="saveInventory()" class="btn btn-primary"><span class="fa fa-plus"> Update</span></a>
+	 					</div>
+	 				</div>
+   					
+					<form class="form-horizontal" role="form">
+					    <div class="form-group">
+					        <label for="inv-name" class="col-sm-2 control-label">Name</label>
+					        <div class="col-sm-4">
+					            <input type="text" class="form-control" id="inv-name"  ng-model="context.inventory.hid"  placeholder="Human readable name">
+					        </div>
+					        <label for="inv-id" class="col-sm-1 control-label"  ng-show="context.inventory.id">Id</label>
+					        <div class="col-sm-2" ng-show="context.inventory.id">
+					            <input type="text" readonly class="form-control" id="inv-id" ng-model="context.inventory.id" placeholder="">
+					        </div>
+							<div class="col-sm-1"></div>
+							<div class="btn-group" class="col-sm-2">
+								<input type="checkbox" id="inv-active" autocomplete="off" 
+									ng-model="context.inventory.active" style="display: none"/>
+								<label for="inv-active" class="btn btn-default">
+									<span class="glyphicon"
+									ng-class="{ 'glyphicon-ok':context.inventory.active,'glyphicon-pause':!context.inventory.active}"
+									></span> <span>
+									</span>
+								</label> 
+								<label for="inv-active" 
+									ng-class="{ 'btn-default':!context.inventory.active,'btn-success':context.inventory.active}"
+									class="btn">{{context.inventory.active?"Active":"Paused"}}</label>
+							</div>
+					    </div>
+					    
+		                <div class="form-group">
+		                    <label for="inv-size" class="col-sm-2 control-label">Size</label>
+		                    <div class="col-sm-10">
+	   							<span ng-show="context.inventory.id">{{context.inventory.size}}</span>
+								<select id="inv-size" class="form-control" ng-show="!context.inventory.id" 
+									ng-options="m.value as m.label for m in sizes" ng-model="context.inventory.size">
+		                        </select>
+		                    </div>
+		                </div>
+
+		                <div class="form-group">
+		                    <label for="inv-nobanner" class="col-sm-2 control-label">No banner</label>
+		                    <div class="col-sm-10">
+								<select id="inv-nobanner" class="form-control" 
+									ng-options="m.value as m.label for m in nobanners" ng-model="context.inventory.nobanner">
+		                        </select>
+		                    </div>
+		                </div>
+
+					    <div class="form-group">
+					        <label for="inv-description" class="col-sm-2 control-label">Description</label>
+					        <div class="col-sm-10">
+					            <textarea class="form-control" rows="4" id="inv-description" ng-model="context.inventory.description"></textarea>
+					        </div>
+					    </div>
+   					</form>
+   					
+   				</div>
+   				<div ng-show="!context.inventory">
+   					<div class="eas-tb">
+						<div class="btn-group">
+							<div class="dropdown">
+								<button ng-show="selectedCount()>0" class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+							    	With selected ...
+							    	<span class="caret"></span>
+								</button>
+								<ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+		   							<li><a ng-click="activeSelected(true)"><span class="fa fa-play"> &nbsp;Active</span></a></li>
+	   								<li><a ng-click="activeSelected(false)"><span class="fa fa-pause"> &nbsp;Pause</span></a></li>
+								</ul>
+								<button ng-click="newInventory()" class="btn btn-default"><span class="fa fa-plus"> New Inventory</span></button>
+							</div>
+						</div>
+
+						<div class="btn-group pull-right">
+							<div class="dropdown">
+								<button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+							    	Filter
+							    	<span class="caret"></span>
+								</button>
+								<ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+	        						<li>
+	        							<a ng-click="context.filterInventoryActive=!context.filterInventoryActive">
+	        								<span class="fa fa-check" ng-show="context.filterInventoryActive"></span> Active
+	        							</a>
+	        						</li>
+	        						<li>
+	        							<a ng-click="context.filterInventoryPaused=!context.filterInventoryPaused">
+	        								<span class="fa fa-check" ng-show="context.filterInventoryPaused"></span> Paused
+	        							</a>
+	        						</li>
+	        						<li class="divider"></li>
+	        						<li>
+	        							<a ng-click="context.filterInventoryUsed=!context.filterInventoryUsed">
+	        								<span class="fa fa-check" ng-show="context.filterInventoryUsed"></span> Used in campaign
+	        							</a>
+	        						</li>
+	        						<li>
+	        							<a ng-click="context.filterInventoryUnused=!context.filterInventoryUnused">
+	        								<span class="fa fa-check" ng-show="context.filterInventoryUnused"></span> Not used in campaign
+	        							</a>
+	        						</li>
+								</ul>
+							</div>
+						</div>
+						
+					</div>
+					
+   					<div ng-show="inventoryCount()==0">No inventory defined</div>
+   					<table ng-show="inventoryCount()>0" class="table table-striped table-hover">
+   						<thead>
+	   						<tr>
+	   							<th></th>
+	   							<th><span class="fa fa-check" ng-click="selectionToggle()"></span></th>
+	   							<th>Name</th>
+	   							<th>Status</th>
+	   							<th>Id</th>
+	   							<th>Size</th>
+	   							<th>Imprs</th>
+	   							<th>Clicks</th>
+	   							<th>CTR %</th>
+	   							<th></th>
+	   						</tr>
+	   					</thead>
+	   					<tbody>
+	   						<tr ng-repeat="inv in data.ads.inventory | toArray | filter:filterInventory"
+	   							vdh-tooltip="inventoryTooltip(inv)" 
+	   							ng-click="selectInventory(inv)">
+	   							<td>
+	   								<a ng-click="$event.stopPropagation();removeInventory(inv)" title="Remove inventory">
+	   									<span class="fa fa-trash"></span>
+	   								</a>
+	   							</td>
+	   							<td>
+	   								<input type="checkbox" ng-model="context.selected[inv.id]" ng-click="$event.stopPropagation()"/>
+	   							</td>
+	   							<td>{{ inv.hid }}</td>
+	   							<td>{{ inv.active?"Active":"Paused"}}</td>
+	   							<td>{{ inv.id }}</td>
+	   							<td>{{ inv.size }}</td>
+	   							<td>{{ data.stats.total.inv.impr[inv.id] || 0 }}</td>
+	   							<td>{{ data.stats.total.inv.click[inv.id] || 0 }}</td>
+	   							<td>{{ calcCTR(data.stats.total.inv,inv.id) }} </td>
+	   							<td>
+	   								<a ng-click="$event.stopPropagation();clearStats('inv',inv.id)" title="Clear stats">
+	   									<span class="fa fa-eraser"></span>
+	   								</a>
+	   							</td>
+	   						</tr>
+	   					</tbody>
+   					</table>
+   				</div>
+   			</div>
+
+   		</div>    		
+	</div>
+</div>

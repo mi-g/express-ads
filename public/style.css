@@ -1,0 +1,22 @@
+.eas [ng\:cloak], .eas [ng-cloak], .eas [data-ng-cloak], .eas [x-ng-cloak], .eas .ng-cloak, .eas .x-ng-cloak {
+  display: none !important;
+}
+
+.eas-page header {
+	background-color: #333;
+	color: #ccc;
+	font-weight: 800;
+	text-align: center;
+	padding: 8px 0;
+}
+
+.eas .eas-tb {
+	padding: 6px;
+	margin: 6px 0 12px 0;
+	background-color: #eee;
+}
+
+.eas .tooltip-inner {
+	max-width: none;
+}
+
