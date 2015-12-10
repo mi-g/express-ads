@@ -11,21 +11,21 @@
 		<ul class="nav nav-tabs" role="tablist">
 			<li class="pull-right"><span><a ng-click="getAds()" class="btn" title="Refresh"><span class="fa fa-refresh"></span></a></span></li>
 <% if(config.debugData) { %>
-  			<li role="presentation tab" ng-class="{active:context.tab=='debug'}"><a ng-click="context.tab='debug'" aria-controls="debug" role=" tab">Debug</a></li>
+  			<li role="presentation tab" ng-class="{active:local.tab=='debug'}"><a ng-click="local.tab='debug'" aria-controls="debug" role=" tab">Debug</a></li>
 <% } %>
-  			<li role="presentation tab" ng-class="{active:context.tab=='campaign'}"><a ng-click="context.tab='campaign'" role=" tab">Campaigns</a></li>
-  			<li role="presentation tab" ng-class="{active:context.tab=='banner'}"><a ng-click="context.tab='banner'" role=" tab">Banners</a></li>
-  			<li role="presentation tab" ng-class="{active:context.tab=='inventory'}"><a ng-click="context.tab='inventory'" role=" tab">Inventory</a></li>
+  			<li role="presentation tab" ng-class="{active:local.tab=='campaign'}"><a ng-click="local.tab='campaign'" role=" tab">Campaigns</a></li>
+  			<li role="presentation tab" ng-class="{active:local.tab=='banner'}"><a ng-click="local.tab='banner'" role=" tab">Banners</a></li>
+  			<li role="presentation tab" ng-class="{active:local.tab=='inventory'}"><a ng-click="local.tab='inventory'" role=" tab">Inventory</a></li>
 		</ul>
 		<div class="tab-content">
 		
 <% if(config.debugData) { %>
-   			<div role="tabpanel" class="tab-pane" ng-class="{active:context.tab=='debug'}">
+   			<div role="tabpanel" class="tab-pane" ng-class="{active:local.tab=='debug'}">
    				<pre>{{ prettyAds() }}</pre>
    			</div>
 <% } %>
 
-   			<div role="tabpanel" class="tab-pane" ng-class="{active:context.tab=='campaign'}">   				
+   			<div role="tabpanel" class="tab-pane" ng-class="{active:local.tab=='campaign'}">   				
    				<div ng-show="context.campaign">
    					<div class="eas-tb">
 						<div class="btn-group">
@@ -179,7 +179,7 @@
    				</div>
    			</div>
 
-   			<div role="tabpanel" class="tab-pane" ng-class="{active:context.tab=='banner'}">   				
+   			<div role="tabpanel" class="tab-pane" ng-class="{active:local.tab=='banner'}">   				
    				<div ng-show="context.banner">
    					<div class="eas-tb">
 						<div class="btn-group">
@@ -424,7 +424,7 @@
    				</div>
    			</div>
    			
-   			<div role="tabpanel" class="tab-pane" ng-class="{active:context.tab=='inventory'}">   				
+   			<div role="tabpanel" class="tab-pane" ng-class="{active:local.tab=='inventory'}">   				
    				<div ng-show="context.inventory">
    					<div class="eas-tb">
 						<div class="btn-group">
@@ -512,24 +512,24 @@
 								</button>
 								<ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
 	        						<li>
-	        							<a ng-click="context.filterInventoryActive=!context.filterInventoryActive">
-	        								<span class="fa fa-check" ng-show="context.filterInventoryActive"></span> Active
+	        							<a ng-click="local.filterInventoryActive=!local.filterInventoryActive">
+	        								<span class="fa fa-check" ng-show="local.filterInventoryActive"></span> Active
 	        							</a>
 	        						</li>
 	        						<li>
-	        							<a ng-click="context.filterInventoryPaused=!context.filterInventoryPaused">
-	        								<span class="fa fa-check" ng-show="context.filterInventoryPaused"></span> Paused
+	        							<a ng-click="local.filterInventoryPaused=!local.filterInventoryPaused">
+	        								<span class="fa fa-check" ng-show="local.filterInventoryPaused"></span> Paused
 	        							</a>
 	        						</li>
 	        						<li class="divider"></li>
 	        						<li>
-	        							<a ng-click="context.filterInventoryUsed=!context.filterInventoryUsed">
-	        								<span class="fa fa-check" ng-show="context.filterInventoryUsed"></span> Used in campaign
+	        							<a ng-click="local.filterInventoryUsed=!local.filterInventoryUsed">
+	        								<span class="fa fa-check" ng-show="local.filterInventoryUsed"></span> Used in campaign
 	        							</a>
 	        						</li>
 	        						<li>
-	        							<a ng-click="context.filterInventoryUnused=!context.filterInventoryUnused">
-	        								<span class="fa fa-check" ng-show="context.filterInventoryUnused"></span> Not used in campaign
+	        							<a ng-click="local.filterInventoryUnused=!local.filterInventoryUnused">
+	        								<span class="fa fa-check" ng-show="local.filterInventoryUnused"></span> Not used in campaign
 	        							</a>
 	        						</li>
 								</ul>

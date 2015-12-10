@@ -24,13 +24,23 @@ angular.module('EASApp').controller('EASCtrl',
 			endType: "never",
 			start: Date.now(),
 			end: new Date(Date.now()+7*24*60*60*1000).getTime(),
-			tab: "campaign",
 			selected: {},
 			selToggle: true,
+		}
+		$scope.local = {
 			filterInventoryActive: true,
 			filterInventoryPaused: true,
 			filterInventoryUsed: true,
-			filterInventoryUnused: true,
+			filterInventoryUnused: true,				
+			tab: "campaign",
+		}
+		if(window.localStorage) {
+			var local = window.localStorage.getItem("eas");
+			if(local) 
+				try {
+					var stored = JSON.parse(local);
+					angular.merge($scope.local,stored);
+				} catch(e) {}
 		}
 		$scope.sizes = [
 		    {value: "300x250", label: "300x250" },
@@ -228,10 +238,14 @@ angular.module('EASApp').controller('EASCtrl',
 			$scope.context.addImageError = null;
 		});
 		
-		$scope.$watch('context.tab',function() {
+		$scope.$watch('local.tab',function() {
 			$scope.context.selected = {};
 			$scope.context.selToggle = true;
 		});
+		$scope.$watch('local',function() {
+			if(window.localStorage)
+				window.localStorage.setItem("eas",JSON.stringify($scope.local));
+		},true);
 		
 		function UpdateSchedule() {
 			var campaign = $scope.context.campaign;
@@ -250,8 +264,8 @@ angular.module('EASApp').controller('EASCtrl',
 		$scope.$watch('context.startType+context.start+context.endType+context.end',UpdateSchedule);
 		
 		$scope.selectionToggle = function() {
-			if(['campaign','banner','inventory'].indexOf($scope.context.tab)>=0) {
-				for(var id in $scope.data.ads[$scope.context.tab])
+			if(['campaign','banner','inventory'].indexOf($scope.local.tab)>=0) {
+				for(var id in $scope.data.ads[$scope.local.tab])
 					$scope.context.selected[id] = $scope.context.selToggle;
 				$scope.context.selToggle = !$scope.context.selToggle;
 			}
@@ -265,8 +279,8 @@ angular.module('EASApp').controller('EASCtrl',
 		}
 		
 		$scope.activeSelected = function(active) {
-			if(['campaign','banner','inventory'].indexOf($scope.context.tab)>=0) {
-				Call('/active-group',{type: $scope.context.tab, active: active, ids: $scope.context.selected},function(err,data) {
+			if(['campaign','banner','inventory'].indexOf($scope.local.tab)>=0) {
+				Call('/active-group',{type: $scope.local.tab, active: active, ids: $scope.context.selected},function(err,data) {
 					$scope.getAds();
 				});				
 			}
@@ -620,13 +634,13 @@ angular.module('EASApp').controller('EASCtrl',
 		}
 		
 		$scope.filterInventory = function(inv) {
-			if(!$scope.context.filterInventoryActive && inv.active)
+			if(!$scope.local.filterInventoryActive && inv.active)
 				return false;
-			if(!$scope.context.filterInventoryPaused && !inv.active)
+			if(!$scope.local.filterInventoryPaused && !inv.active)
 				return false;
-			if(!$scope.context.filterInventoryUsed && $scope.inventoryUsage[inv.id].campaignsCount>0)
+			if(!$scope.local.filterInventoryUsed && $scope.inventoryUsage[inv.id].campaignsCount>0)
 				return false;
-			if(!$scope.context.filterInventoryUnused && $scope.inventoryUsage[inv.id].campaignsCount==0)
+			if(!$scope.local.filterInventoryUnused && $scope.inventoryUsage[inv.id].campaignsCount==0)
 				return false;
 			return true;
 		}
