@@ -27,13 +27,19 @@ angular.module('EASApp').controller('EASCtrl',
 			selected: {},
 			selToggle: true,
 		}
+		$scope.campaignUsage = {};
+		$scope.bannerUsage = {};
+		$scope.inventoryUsage = {};
 		$scope.local = {
 			filterInventoryActive: true,
-			filterInventoryPaused: true,
-			filterInventoryUsed: true,
-			filterInventoryUnused: true,
 			filterInventoryCampaign: null,
 			filterInventoryBanner: null,
+			filterCampaignActive: true,
+			filterCampaignInventory: null,
+			filterCampaignBanner: null,
+			filterBannerActive: true,
+			filterBannerInventory: null,
+			filterBannerCampaign: null,
 			tab: "campaign",
 		}
 		if(window.localStorage) {
@@ -310,6 +316,8 @@ angular.module('EASApp').controller('EASCtrl',
 					$scope.context.selected = {}
 					$scope.selToggle = true;
 					$scope.calcInventoryUsage();
+					$scope.calcCampaignUsage();
+					$scope.calcBannerUsage();
 					if(callback)
 						callback();
 				}
@@ -635,14 +643,105 @@ angular.module('EASApp').controller('EASCtrl',
 			});
 		}
 		
+		$scope.bannerImageTooltip = function(img) {
+			return '<div><img style=\'max-width:400px;max-height:200px\' src=\''+$scope.imageUrl(img)+'\'/></div>';			
+		}
+		
+		$scope.filterCampaign = function(cam) {
+			if($scope.local.filterCampaignActive && !cam.active)
+				return false;
+			if($scope.data.ads && $scope.data.ads.inventory[$scope.local.filterCampaignInventory] && 
+					!$scope.campaignUsage[cam.id].inventory[$scope.local.filterCampaignInventory])
+				return false;
+			if($scope.data.ads && $scope.data.ads.banner[$scope.local.filterCampaignBanner] && 
+					!$scope.campaignUsage[cam.id].banners[$scope.local.filterCampaignBanner])
+				return false;
+			return true;
+		}
+		
+		$scope.calcCampaignUsage = function() {
+			if(!$scope.data || !$scope.data.ads || !$scope.data.ads.campaign)
+				return;
+			$scope.campaignUsage = {};
+			for(var camId in $scope.data.ads.campaign) {
+				var cam = $scope.data.ads.campaign[camId];
+				var banners = {};
+				var inventory = {};
+				if(cam.active) {					
+					cam.banners.forEach(function(bid) {
+						if(!$scope.data.ads.banner[bid].active)
+							return;
+						banners[bid] = 1;
+					});
+					for(var bid in banners) {
+						var banner = $scope.data.ads.banner[bid];
+						banner.inventory.forEach(function(iid) {
+							var inv = $scope.data.ads.inventory[iid];
+							if(!inv.active)
+								return;
+							for(var imid in banner.images) {
+								var image = banner.images[imid];
+								if(image.size==inv.size)
+									inventory[iid] = 1;
+							}
+						});
+					}
+				}
+				$scope.campaignUsage[camId] = {
+					banners: banners,
+					inventory: inventory,
+				}
+			}
+		}
+
+		$scope.filterBanner = function(ban) {
+			if($scope.local.filterBannerActive && !ban.active)
+				return false;
+			if($scope.data.ads && $scope.data.ads.inventory[$scope.local.filterBannerInventory] && 
+					!$scope.bannerUsage[ban.id].inventory[$scope.local.filterBannerInventory])
+				return false;
+			if($scope.data.ads && $scope.data.ads.campaign[$scope.local.filterBannerCampaign] && 
+					!$scope.bannerUsage[ban.id].campaigns[$scope.local.filterBannerCampaign])
+				return false;
+			return true;
+		}
+		
+		$scope.calcBannerUsage = function() {
+			if(!$scope.data || !$scope.data.ads || !$scope.data.ads.banner)
+				return;
+			$scope.bannerUsage = {};
+			for(var banId in $scope.data.ads.banner) {
+				var banner = $scope.data.ads.banner[banId];
+				var campaigns = {};
+				var inventory = {};
+				if(banner.active) {					
+					banner.inventory.forEach(function(iid) {
+						var inv = $scope.data.ads.inventory[iid];
+						if(!inv.active)
+							return;
+						for(var imid in banner.images) {
+							var image = banner.images[imid];
+							if(image.size==inv.size)
+								inventory[iid] = 1;
+						}
+					});
+					for(var cid in $scope.data.ads.campaign) {
+						var campaign = $scope.data.ads.campaign[cid];
+						if(!campaign.active)
+							continue;
+						if(campaign.banners.indexOf(banner.id)>=0)
+							campaigns[cid] = 1;
+					}
+				}
+				$scope.bannerUsage[banId] = {
+					campaigns: campaigns,
+					inventory: inventory,
+				}
+			}
+		}
+
 		$scope.filterInventory = function(inv) {
-			if(!$scope.local.filterInventoryActive && inv.active)
-				return false;
-			if(!$scope.local.filterInventoryPaused && !inv.active)
-				return false;
-			if(!$scope.local.filterInventoryUsed && $scope.inventoryUsage[inv.id].campaignsCount>0)
-				return false;
-			if(!$scope.local.filterInventoryUnused && $scope.inventoryUsage[inv.id].campaignsCount==0)
+			if($scope.local.filterInventoryActive && !inv.active)
 				return false;
 			if($scope.data.ads && $scope.data.ads.campaign[$scope.local.filterInventoryCampaign] && 
 					!$scope.inventoryUsage[inv.id].campaigns[$scope.local.filterInventoryCampaign])
@@ -653,11 +752,6 @@ angular.module('EASApp').controller('EASCtrl',
 			return true;
 		}
 		
-		
-		$scope.bannerImageTooltip = function(img) {
-			return '<div><img style=\'max-width:400px;max-height:200px\' src=\''+$scope.imageUrl(img)+'\'/></div>';			
-		}
-
 		$scope.calcInventoryUsage = function() {
 			if(!$scope.data || !$scope.data.ads || !$scope.data.ads.inventory)
 				return;
@@ -665,58 +759,76 @@ angular.module('EASApp').controller('EASCtrl',
 			for(var invId in $scope.data.ads.inventory) {
 				var inv = $scope.data.ads.inventory[invId];
 				var banners = {};
-				for(var bid in $scope.data.ads.banner) {
-					var banner = $scope.data.ads.banner[bid];
-					if(!banner.active)
-						continue;
-					if(banner.inventory.indexOf(inv.id)>=0) {
-						for(var iid in banner.images) {
-							var image = banner.images[iid];
-							if(image.size==inv.size)
-								banners[bid] = 1; 
+				var campaigns = {};
+				if(inv.active) {
+					for(var bid in $scope.data.ads.banner) {
+						var banner = $scope.data.ads.banner[bid];
+						if(!banner.active)
+							continue;
+						if(banner.inventory.indexOf(inv.id)>=0) {
+							for(var iid in banner.images) {
+								var image = banner.images[iid];
+								if(image.size==inv.size)
+									banners[bid] = 1; 
+							}
 						}
 					}
+					for(var cid in $scope.data.ads.campaign) {
+						var campaign = $scope.data.ads.campaign[cid];
+						if(!campaign.active)
+							continue;
+						for(var bid in banners)
+							if(campaign.banners.indexOf(bid)>=0)
+								campaigns[cid] = 1;
+					}
 				}
-				var campaigns = {};
-				for(var cid in $scope.data.ads.campaign) {
-					var campaign = $scope.data.ads.campaign[cid];
-					if(!campaign.active)
-						continue;
-					if(campaign.end && $scope.data.now>campaign.end)
-						continue;
-					if(campaign.start && $scope.data.now<campaign.start)
-						continue;
-					for(var bid in banners)
-						if(campaign.banners.indexOf(bid)>=0)
-							campaigns[cid] = 1;
-				}
-				var campaignCount = 0;
-				for(var cid in campaigns)
-					campaignCount++;
-				var bannerCount = 0;
-				for(var bid in banners)
-					bannerCount++;
 				$scope.inventoryUsage[invId] = {
 					banners: banners,
-					bannersCount: bannerCount,
 					campaigns: campaigns,
-					campaignsCount: campaignCount,
 				};
 			}
 		}
+		
+		function CountProps(object) {
+			var count = 0;
+			for(var i in object)
+				count++;
+			return count;
+		}
 
-		$scope.inventoryTooltip = function(inv) {
+		$scope.campaignTooltip = function(cam) {
 			var tooltip = '<div style="width: 400px;text-align:left">';
-			var usage = $scope.inventoryUsage[inv.id];
-			if(usage.bannersCount>0) {
+			var usage = $scope.campaignUsage[cam.id];
+			var inventoryCount = CountProps(usage.inventory);
+			var bannersCount = CountProps(usage.banners);
+			if(bannersCount>0) {
 				tooltip += '<div><strong>Banners:</strong></div><div>';
 				var banners = [];
 				for(var bid in usage.banners)
 					banners.push($scope.data.ads.banner[bid].hid);
-				tooltip += banners.join(", ");
+				tooltip += banners.join(", ");			
 				tooltip += '</div>';
 			}
-			if(usage.campaignsCount>0) {
+			if(inventoryCount>0) {
+				tooltip += '<div><strong>Inventory:</strong></div><div>';
+				var inventory = [];
+				for(var iid in usage.inventory)
+					inventory.push($scope.data.ads.inventory[iid].hid);
+				tooltip += inventory.join(", ");
+				tooltip += '</div>';
+			}
+			if(bannersCount==0 && inventoryCount==0)
+				tooltip += '<strong>Not used</strong>';
+			tooltip += '</div>';
+			return tooltip;
+		}
+		
+		$scope.bannerTooltip = function(cam) {
+			var tooltip = '<div style="width: 400px;text-align:left">';
+			var usage = $scope.bannerUsage[cam.id];
+			var inventoryCount = CountProps(usage.inventory);
+			var campaignsCount = CountProps(usage.campaigns);
+			if(campaignsCount>0) {
 				tooltip += '<div><strong>Campaigns:</strong></div><div>';
 				var campaigns = [];
 				for(var cid in usage.campaigns)
@@ -724,7 +836,42 @@ angular.module('EASApp').controller('EASCtrl',
 				tooltip += campaigns.join(", ");			
 				tooltip += '</div>';
 			}
-			if(usage.bannersCount==0 && usage.campaignsCount==0)
+			if(inventoryCount>0) {
+				tooltip += '<div><strong>Inventory:</strong></div><div>';
+				var inventory = [];
+				for(var iid in usage.inventory)
+					inventory.push($scope.data.ads.inventory[iid].hid);
+				tooltip += inventory.join(", ");
+				tooltip += '</div>';
+			}
+			if(campaignsCount==0 && inventoryCount==0)
+				tooltip += '<strong>Not used</strong>';
+			tooltip += '</div>';
+			return tooltip;
+		}
+		
+		$scope.inventoryTooltip = function(inv) {
+			var tooltip = '<div style="width: 400px;text-align:left">';
+			var usage = $scope.inventoryUsage[inv.id];
+			var bannersCount = CountProps(usage.banners);
+			var campaignsCount = CountProps(usage.campaigns);
+			if(campaignsCount>0) {
+				tooltip += '<div><strong>Campaigns:</strong></div><div>';
+				var campaigns = [];
+				for(var cid in usage.campaigns)
+					campaigns.push($scope.data.ads.campaign[cid].hid);
+				tooltip += campaigns.join(", ");			
+				tooltip += '</div>';
+			}
+			if(bannersCount>0) {
+				tooltip += '<div><strong>Banners:</strong></div><div>';
+				var banners = [];
+				for(var bid in usage.banners)
+					banners.push($scope.data.ads.banner[bid].hid);
+				tooltip += banners.join(", ");
+				tooltip += '</div>';
+			}
+			if(bannersCount==0 && campaignsCount==0)
 				tooltip += '<strong>Not used</strong>';
 			tooltip += '</div>';
 			return tooltip;
