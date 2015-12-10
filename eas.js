@@ -15,6 +15,9 @@ var modPackage = require('./package');
 const stylesNames = ["fontAwesome","bootstrap","bootstrapDateTimePicker","uiSelect","eas"];
 const scriptsNames = ["jquery","angular","angularSanitize","bootstrap","moment","bootstrapDateTimePicker","uiSelect","eas"];
 
+var osFamilies = {}
+var browserFamilies = {}
+
 module.exports = function(app,config) {
 	
 	config = extend(true,{
@@ -229,8 +232,8 @@ module.exports = function(app,config) {
 				missed: ads.getMissedInventory(),
 				ads: ads.getAds(),
 				stats: ads.getStats(),
-				//osFamilies: osFamilies,
-				//browserFamilies: browserFamilies,
+				osFamilies: osFamilies,
+				browserFamilies: browserFamilies,
 				now: Date.now(),
 			});
 		});		
