@@ -496,7 +496,7 @@
 							    	With selected ...
 							    	<span class="caret"></span>
 								</button>
-								<ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+								<ul class="dropdown-menu">
 		   							<li><a ng-click="activeSelected(true)"><span class="fa fa-play"> &nbsp;Active</span></a></li>
 	   								<li><a ng-click="activeSelected(false)"><span class="fa fa-pause"> &nbsp;Pause</span></a></li>
 								</ul>
@@ -536,6 +536,42 @@
 							</div>
 						</div>
 						
+						<div class="btn-group pull-right">
+							<div class="dropdown">
+								<button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+							    	<span ng-show="!data.ads.campaign[local.filterInventoryCampaign]">Any campaign</span>
+							    	<span ng-show="data.ads.campaign[local.filterInventoryCampaign]">Campaign: {{data.ads.campaign[local.filterInventoryCampaign].hid}}</span>
+							    	<span class="caret"></span>
+								</button>
+								<ul class="dropdown-menu">
+	        						<li>
+	        							<a ng-click="local.filterInventoryCampaign=null">Any campaign</a>
+	        						</li>
+	        						<li ng-repeat="(cid,campaign) in data.ads.campaign">
+	        							<a ng-click="local.filterInventoryCampaign=cid">{{campaign.hid}}</a>
+	        						</li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="btn-group pull-right">
+							<div class="dropdown">
+								<button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+							    	<span ng-show="!data.ads.banner[local.filterInventoryBanner]">Any banner</span>
+							    	<span ng-show="data.ads.banner[local.filterInventoryBanner]">Banner: {{data.ads.banner[local.filterInventoryBanner].hid}}</span>
+							    	<span class="caret"></span>
+								</button>
+								<ul class="dropdown-menu">
+	        						<li>
+	        							<a ng-click="local.filterInventoryBanner=null">Any banner</a>
+	        						</li>
+	        						<li ng-repeat="(cid,banner) in data.ads.banner">
+	        							<a ng-click="local.filterInventoryBanner=cid">{{banner.hid}}</a>
+	        						</li>
+								</ul>
+							</div>
+						</div>
+
 					</div>
 					
    					<div ng-show="inventoryCount()==0">No inventory defined</div>

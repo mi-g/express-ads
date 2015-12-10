@@ -31,7 +31,9 @@ angular.module('EASApp').controller('EASCtrl',
 			filterInventoryActive: true,
 			filterInventoryPaused: true,
 			filterInventoryUsed: true,
-			filterInventoryUnused: true,				
+			filterInventoryUnused: true,
+			filterInventoryCampaign: null,
+			filterInventoryBanner: null,
 			tab: "campaign",
 		}
 		if(window.localStorage) {
@@ -641,6 +643,12 @@ angular.module('EASApp').controller('EASCtrl',
 			if(!$scope.local.filterInventoryUsed && $scope.inventoryUsage[inv.id].campaignsCount>0)
 				return false;
 			if(!$scope.local.filterInventoryUnused && $scope.inventoryUsage[inv.id].campaignsCount==0)
+				return false;
+			if($scope.data.ads && $scope.data.ads.campaign[$scope.local.filterInventoryCampaign] && 
+					!$scope.inventoryUsage[inv.id].campaigns[$scope.local.filterInventoryCampaign])
+				return false;
+			if($scope.data.ads && $scope.data.ads.banner[$scope.local.filterInventoryBanner] && 
+					!$scope.inventoryUsage[inv.id].banners[$scope.local.filterInventoryBanner])
 				return false;
 			return true;
 		}
