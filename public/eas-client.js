@@ -767,6 +767,10 @@ angular.module('EASApp').controller('EASCtrl',
 				}
 			}
 		}
+		
+		$scope.filterActiveInventory = function(inv) {
+			return inv.active;
+		}
 
 		$scope.filterInventory = function(inv) {
 			if($scope.local.filterInventoryActive && !inv.active)
