@@ -208,8 +208,12 @@ module.exports = function(app,config) {
 	});
 	
 	app.get(config.adminPath+"/public/:file",function(req,res) {
-		res.header('Cache-Control','public, max-age='+config.staticMaxAge)
-			.sendFile(path.resolve(__dirname, "public/"+req.params.file));
+		var filePath =  path.resolve(__dirname,"public/"+req.params.file);
+		if(filePath.indexOf(__dirname+"/public/")==0)
+			res.header('Cache-Control','public, max-age='+config.staticMaxAge)
+				.sendFile(filePath);
+		else // TODO hack attempt = block IP
+			res.status(403).send("Forbidden");
 	});
 	
 	app.get(config.path + '/:invid/:camid/:banid/:imaid',function(req,res) {
@@ -226,8 +230,12 @@ module.exports = function(app,config) {
 	});
 
 	app.get(config.path + '/images/:file',function(req,res) {
-		res.header('Cache-Control','public, max-age='+config.staticMaxAge)
-			.sendFile(path.resolve(__dirname,"ads/images/"+req.params.file));
+		var filePath =  path.resolve(__dirname,"ads/images/"+req.params.file);
+		if(filePath.indexOf(__dirname+"/ads/images/")==0)
+			res.header('Cache-Control','public, max-age='+config.staticMaxAge)
+				.sendFile(filePath);
+		else // TODO hack attempt = block IP
+			res.status(403).send("Forbidden");
 	});
 
 	
