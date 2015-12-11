@@ -138,7 +138,7 @@
    					</form>
    					
    				</div>
-   				<div ng-show="!context.campaign">
+   				<div>
    					<div class="eas-tb">
 						<div class="btn-group">
 	 						<a ng-click="newCampaign()" class="btn btn-default"><span class="fa fa-plus"> New Campaign</span></a>
@@ -307,7 +307,7 @@
 								<ui-select multiple
 									ng-model="context.banner.inventory" theme="bootstrap"> 
 									<ui-select-match placeholder="Select inventory...">{{$item.hid}}</ui-select-match> 
-									<ui-select-choices repeat="inv.id as inv in inventoryArray() | propsFilter: {hid: $select.search}">
+									<ui-select-choices repeat="inv.id as inv in inventoryArray() | propsFilter: {hid: $select.search }">
 										{{inv.hid}} 
 									</ui-select-choices>
 								</ui-select>
@@ -435,7 +435,7 @@
    					</form>
    					
    				</div>
-   				<div ng-show="!context.banner">
+   				<div>
    					<div class="eas-tb">
 						<div class="btn-group">
 	 						<a ng-click="newBanner()" class="btn btn-default"><span class="fa fa-plus"> New Banner</span></a>
@@ -626,7 +626,7 @@
    					</form>
    					
    				</div>
-   				<div ng-show="!context.inventory">
+   				<div>
    					<div class="eas-tb">
 						<div class="btn-group">
 							<div class="dropdown">
