@@ -26,6 +26,8 @@ angular.module('EASApp').controller('EASCtrl',
 			end: new Date(Date.now()+7*24*60*60*1000).getTime(),
 			selected: {},
 			selToggle: true,
+			invStyleProp: null,
+			invStyleValue: null,
 		}
 		$scope.campaignUsage = {};
 		$scope.bannerUsage = {};
@@ -341,6 +343,8 @@ angular.module('EASApp').controller('EASCtrl',
 				size: "300x250",
 				description: "",
 				nobanner: "hide",
+				classes: "",
+				styles: {},
 			}
 		}
 
@@ -381,6 +385,29 @@ angular.module('EASApp').controller('EASCtrl',
 			for(var i in $scope.data.ads.inventory)
 				count++;
 			return count;
+		}
+		
+		$scope.inventoryHasStyle = function() {
+			if(!$scope.context.inventory)
+				return false;
+			for(var i in $scope.context.inventory.styles)
+				return true;
+			return false;
+		}
+		
+		$scope.addInventoryStyle = function() {
+			$scope.context.inventory.styles[$scope.context.invStyleProp.trim()] = $scope.context.invStyleValue.trim();
+			$scope.context.invStyleProp = null;
+			$scope.context.invStyleValue = null;
+		}
+		
+		$scope.newInventoryStyle = function() {
+			$scope.context.invStyleProp = "";
+			$scope.context.invStyleValue = "";
+		}
+		
+		$scope.removeInventoryStyle = function(prop) {
+			delete $scope.context.inventory.styles[prop];
 		}
 
 		/* campaign */

@@ -184,6 +184,13 @@ module.exports = function(config) {
 			if(!banner.type)
 				banner.type='image';
 		}
+		for(var iid in ads.inventory) {
+			var inventory = ads.inventory[iid];
+			if(!inventory.classes)
+				inventory.classes='';
+			if(!inventory.styles)
+				inventory.styles={};
+		}
 		return ads;
 	}
 	

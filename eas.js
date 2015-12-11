@@ -143,7 +143,6 @@ module.exports = function(app,config) {
 				return "";
 			
 			options = options || {};
-			var classes = {};
 			var styles = {};
 			var sizeMatch = /^([0-9]+)x([0-9]+)$/.exec(ad.inventory.size);
 			if(!sizeMatch)
@@ -152,11 +151,10 @@ module.exports = function(app,config) {
 			var height = parseInt(sizeMatch[2]);
 			var content;
 			if(ad.banner) {
-				classes=extend(classes,ad.inventory.classes,options.classes);
 				styles=extend(styles,ad.inventory.styles,options.styles);
 				content="<a href='/eas/"
 					+ad.inventory.id+"/"+ad.campaign.id+"/"+ad.banner.id+"/"+ad.image.id
-					+"' target='_blank' rel='nofollow'>"
+					+"' target='_blank' rel='nofollow' style='display:block;overflow:hidden'>"
 					+"<img style='width:"+width+"px;height:"+height+"px' src='"+(ad.image.url ? ad.image.url : "/eas/images/"+ad.image.id+".png" )+"' alt='"
 					+encodeURIComponent(ad.banner.alt.trim())
 					+"'/></a>";
@@ -166,12 +164,6 @@ module.exports = function(app,config) {
 					visibility: 'hidden',
 				}
 			}
-			var hasClasses=false;
-			for(var c in classes) {
-				if(classes[c])
-					hasClasses=true;
-				break;
-			}
 			var hasStyles=false;
 			for(var s in styles) {
 				hasStyles=true;
@@ -179,13 +171,12 @@ module.exports = function(app,config) {
 			}
 			var tag=options.tag || ad.inventory.tag || "div";
 			var parts=['<'+tag];
-			if(hasClasses) {
-				var classes0=[];
+			if(ad.inventory.classes.trim().length>0 || (options.classes && options.classes.length>0)) {
 				parts.push(" class='");
-				for(var c in classes)
-					if(classes[c])
-						classes0.push(c);
-				parts.push(classes0.join(" "));
+				if(ad.inventory.classes.trim().length>0)
+					parts.push(ad.inventory.classes.trim()+" ");
+				if(options.classes && options.classes.length>0)
+					parts.push(options.classes.join(" "));
 				parts.push("'");
 			}
 			if(hasStyles) {
