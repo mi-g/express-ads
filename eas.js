@@ -154,7 +154,7 @@ module.exports = function(app,config) {
 				styles=extend(styles,ad.inventory.styles,options.styles);
 				content="<a href='/eas/"
 					+ad.inventory.id+"/"+ad.campaign.id+"/"+ad.banner.id+"/"+ad.image.id
-					+"' target='_blank' rel='nofollow' style='display:block;overflow:hidden'>"
+					+"' target='_blank' rel='nofollow'>"
 					+"<img style='width:"+width+"px;height:"+height+"px' src='"+(ad.image.url ? ad.image.url : "/eas/images/"+ad.image.id+".png" )+"' alt='"
 					+encodeURIComponent(ad.banner.alt.trim())
 					+"'/></a>";
