@@ -251,6 +251,7 @@ angular.module('EASApp').controller('EASCtrl',
 		$scope.$watch('local.tab',function() {
 			$scope.context.selected = {};
 			$scope.context.selToggle = true;
+			$(".tooltip").remove();
 		});
 		$scope.$watch('local',function() {
 			if(window.localStorage)
