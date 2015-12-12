@@ -949,7 +949,7 @@ angular.module('EASApp').controller('EASCtrl',
 			var inventoryCount = CountProps(usage.inventory);
 			var bannersCount = CountProps(usage.banners);
 			if(bannersCount>0) {
-				tooltip += '<div><strong>Banners:</strong></div><div>';
+				tooltip += '<div class="eas-tooltip-label">Banners:</div><div>';
 				var banners = [];
 				for(var bid in usage.banners)
 					banners.push($scope.data.ads.banner[bid].hid);
@@ -957,7 +957,7 @@ angular.module('EASApp').controller('EASCtrl',
 				tooltip += '</div>';
 			}
 			if(inventoryCount>0) {
-				tooltip += '<div><strong>Inventory:</strong></div><div>';
+				tooltip += '<div class="eas-tooltip-label">Inventory:</div><div>';
 				var inventory = [];
 				for(var iid in usage.inventory) {
 					var str = $scope.data.ads.inventory[iid].hid;
@@ -969,7 +969,7 @@ angular.module('EASApp').controller('EASCtrl',
 			}
 
 			if(bannersCount==0 && inventoryCount==0)
-				tooltip += '<strong>Not used</strong>';
+				tooltip += '<div class="eas-tooltip-label">Not used</div>';
 			tooltip += '</div>';
 			return tooltip;
 		}
@@ -980,7 +980,7 @@ angular.module('EASApp').controller('EASCtrl',
 			var inventoryCount = CountProps(usage.inventory);
 			var campaignsCount = CountProps(usage.campaigns);
 			if(campaignsCount>0) {
-				tooltip += '<div><strong>Campaigns:</strong></div><div>';
+				tooltip += '<div class="eas-tooltip-label">Campaigns:</div><div>';
 				var campaigns = [];
 				for(var cid in usage.campaigns)
 					campaigns.push($scope.data.ads.campaign[cid].hid);
@@ -988,7 +988,7 @@ angular.module('EASApp').controller('EASCtrl',
 				tooltip += '</div>';
 			}
 			if(inventoryCount>0) {
-				tooltip += '<div><strong>Inventory:</strong></div><div>';
+				tooltip += '<div class="eas-tooltip-label">Inventory:</div><div>';
 				var inventory = [];
 				for(var iid in usage.inventory)
 					inventory.push($scope.data.ads.inventory[iid].hid);
@@ -996,7 +996,7 @@ angular.module('EASApp').controller('EASCtrl',
 				tooltip += '</div>';
 			}
 			if(campaignsCount==0 && inventoryCount==0)
-				tooltip += '<strong>Not used</strong>';
+				tooltip += '<div class="eas-tooltip-label">Not used</div>';
 			tooltip += '</div>';
 			return tooltip;
 		}
@@ -1007,7 +1007,7 @@ angular.module('EASApp').controller('EASCtrl',
 			var bannersCount = CountProps(usage.banners);
 			var campaignsCount = CountProps(usage.campaigns);
 			if(campaignsCount>0) {
-				tooltip += '<div><strong>Campaigns:</strong></div><div>';
+				tooltip += '<div class="eas-tooltip-label">Campaigns:</div><div>';
 				var campaigns = [];
 				for(var cid in usage.campaigns) {
 					var campStr = $scope.data.ads.campaign[cid].hid;
@@ -1019,7 +1019,7 @@ angular.module('EASApp').controller('EASCtrl',
 				tooltip += '</div>';
 			}
 			if(bannersCount>0) {
-				tooltip += '<div><strong>Banners:</strong></div><div>';
+				tooltip += '<div class="eas-tooltip-label">Banners:</div><div>';
 				var banners = [];
 				for(var bid in usage.banners)
 					banners.push($scope.data.ads.banner[bid].hid);
@@ -1027,7 +1027,7 @@ angular.module('EASApp').controller('EASCtrl',
 				tooltip += '</div>';
 			}
 			if(usage.roll.total>0) {
-				tooltip += '<div><strong>Usage:</strong></div>';
+				tooltip += '<div class="eas-tooltip-label">Usage:</div>';
 				tooltip += '<div>'+usage.roll.perday + " imprs per day</div>";
 				tooltip += '<div>Scheduled '+usage.roll.scheduledPercent+'%</div>';
 				tooltip += '<div>Background '+usage.roll.backgroundPercent+'%</div>';
@@ -1035,7 +1035,7 @@ angular.module('EASApp').controller('EASCtrl',
 				tooltip += '<div>Missed no campaign '+usage.roll.missedCampaignPercent+'%</div>';
 			}
 			if(bannersCount==0 && campaignsCount==0 && usage.roll.total==0)
-				tooltip += '<strong>Not used</strong>';
+				tooltip += '<div class="eas-tooltip-label">Not used</div>';
 			tooltip += '</div>';
 			return tooltip;
 		}

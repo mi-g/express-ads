@@ -20,3 +20,7 @@
 	max-width: none;
 }
 
+.tooltip .eas-tooltip-label {
+	color: #888;
+	font-weight: 800;
+}
