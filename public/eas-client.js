@@ -1029,6 +1029,10 @@ angular.module('EASApp').controller('EASCtrl',
 				imprs += Math.round(instant.last.impr * (missingDuration/lastDuration));
 				clicks += Math.round(instant.last.click * (missingDuration/lastDuration));
 			}
+			if(currentDuration>duration) {
+				imprs = 0;
+				clicks = 0;
+			}
 			var str = clicks + "/" + imprs;
 			if(imprs)
 				str += " ("+Math.round(clicks*10000/imprs)/100+"%)";
