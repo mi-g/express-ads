@@ -749,11 +749,6 @@
 	   							vdh-tooltip="inventoryTooltip(inv)" 
 	   							ng-click="selectInventory(inv)">
 	   							<td>
-	   								<a ng-click="$event.stopPropagation();removeInventory(inv)" title="Remove inventory">
-	   									<span class="fa fa-trash"></span>
-	   								</a>
-	   							</td>
-	   							<td>
 	   								<input type="checkbox" ng-model="context.selected[inv.id]" ng-click="$event.stopPropagation()"/>
 	   							</td>
 	   							<td><span class="fa" ng-class="{'fa-play':inv.active,'fa-pause':!inv.active}" 
