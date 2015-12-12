@@ -696,6 +696,8 @@ angular.module('EASApp').controller('EASCtrl',
 				var inventory = {};
 				if(cam.active) {					
 					cam.banners.forEach(function(bid) {
+						if(!$scope.data.ads.banner[bid])
+							return;
 						if(!$scope.data.ads.banner[bid].active)
 							return;
 						banners[bid] = 1;
@@ -704,10 +706,14 @@ angular.module('EASApp').controller('EASCtrl',
 						var banner = $scope.data.ads.banner[bid];
 						banner.inventory.forEach(function(iid) {
 							var inv = $scope.data.ads.inventory[iid];
+							if(!inv)
+								return;
 							if(!inv.active)
 								return;
 							for(var imid in banner.images) {
 								var image = banner.images[imid];
+								if(!image)
+									continue;
 								if(image.size==inv.size)
 									inventory[iid] = 1;
 							}
@@ -744,16 +750,22 @@ angular.module('EASApp').controller('EASCtrl',
 				if(banner.active) {					
 					banner.inventory.forEach(function(iid) {
 						var inv = $scope.data.ads.inventory[iid];
+						if(!inv)
+							return;
 						if(!inv.active)
 							return;
 						for(var imid in banner.images) {
 							var image = banner.images[imid];
+							if(!image)
+								continue;
 							if(image.size==inv.size)
 								inventory[iid] = 1;
 						}
 					});
 					for(var cid in $scope.data.ads.campaign) {
 						var campaign = $scope.data.ads.campaign[cid];
+						if(!campaign)
+							continue;
 						if(!campaign.active)
 							continue;
 						if(campaign.banners.indexOf(banner.id)>=0)
@@ -838,11 +850,15 @@ angular.module('EASApp').controller('EASCtrl',
 				if(inv.active) {
 					for(var bid in $scope.data.ads.banner) {
 						var banner = $scope.data.ads.banner[bid];
+						if(!banner)
+							continue;
 						if(!banner.active)
 							continue;
 						if(banner.inventory.indexOf(inv.id)>=0) {
 							for(var iid in banner.images) {
 								var image = banner.images[iid];
+								if(!image)
+									continue;
 								if(image.size==inv.size)
 									banners[bid] = 1; 
 							}
@@ -850,6 +866,8 @@ angular.module('EASApp').controller('EASCtrl',
 					}
 					for(var cid in $scope.data.ads.campaign) {
 						var campaign = $scope.data.ads.campaign[cid];
+						if(!campaign)
+							continue;
 						if(!campaign.active)
 							continue;
 						for(var bid in banners)
