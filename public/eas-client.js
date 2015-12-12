@@ -721,6 +721,7 @@ angular.module('EASApp').controller('EASCtrl',
 			$scope.campaignUsage = {};
 			for(var camId in $scope.data.ads.campaign) {
 				var cam = $scope.data.ads.campaign[camId];
+								
 				var banners = {};
 				var inventory = {};
 				if(cam.active) {					
@@ -753,6 +754,33 @@ angular.module('EASApp').controller('EASCtrl',
 					banners: banners,
 					inventory: inventory,
 				}
+			}
+			
+			var campaignInv = {};
+			var campaignCount = {};
+			for(var invId in $scope.data.stats.roll) {
+				if(!$scope.data.ads.inventory[invId])
+					continue;
+				var roll = $scope.data.stats.roll[invId];
+				for(var cid in roll.current) {
+					if(!(cid in $scope.campaignUsage))
+						continue;
+					campaignInv[cid] = campaignInv[cid] || {};
+					campaignInv[cid][invId] = (campaignInv[cid][invId] || 0) + roll.current[cid];
+					campaignCount[cid] = (campaignCount[cid] || 0) + roll.current[cid];
+				}
+				for(var cid in roll.last) {
+					if(!(cid in $scope.campaignUsage))
+						continue;
+					campaignInv[cid] = campaignInv[cid] || {};
+					campaignInv[cid][invId] = (campaignInv[cid][invId] || 0) + roll.last[cid];
+					campaignCount[cid] = (campaignCount[cid] || 0) + roll.last[cid];
+				}
+			}
+			for(var cid in campaignInv) {
+				$scope.campaignUsage[cid].inventoryUsagePercent = {};
+				for(var iid in campaignInv[cid])
+					$scope.campaignUsage[cid].inventoryUsagePercent[iid] = Math.round(campaignInv[cid][iid]*100/campaignCount[cid]);
 			}
 		}
 
@@ -935,11 +963,15 @@ angular.module('EASApp').controller('EASCtrl',
 			if(inventoryCount>0) {
 				tooltip += '<div><strong>Inventory:</strong></div><div>';
 				var inventory = [];
-				for(var iid in usage.inventory)
-					inventory.push($scope.data.ads.inventory[iid].hid);
+				for(var iid in usage.inventory) {
+					var str = $scope.data.ads.inventory[iid].hid;
+					str += " ("+($scope.campaignUsage[cam.id].inventoryUsagePercent[iid] || 0)+"%)";
+					inventory.push(str);
+				}
 				tooltip += inventory.join(", ");
 				tooltip += '</div>';
 			}
+
 			if(bannersCount==0 && inventoryCount==0)
 				tooltip += '<strong>Not used</strong>';
 			tooltip += '</div>';
