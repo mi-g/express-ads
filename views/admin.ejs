@@ -211,10 +211,10 @@
 	   							<th>Id</th>
 	   							<th>Type</th>
 	   							<th>Remains</th>
-	   							<th>Imprs</th>
-	   							<th>Clicks</th>
-	   							<th>CTR %</th>
-	   							<th></th>
+	   							<th>Total</th>
+	   							<th>Week</th>
+	   							<th>Day</th>
+	   							<th>Hour</th>
 	   						</tr>
 	   					</thead>
 	   					<tbody>
@@ -230,10 +230,10 @@
 	   							<td>{{camp.id}}</td>
 	   							<td>{{campTypeLabel(camp.type)}}</td>
 	   							<td>{{campRemains(camp.id)}}</td>
-	   							<td>{{data.stats.total.cam.impr[camp.id] || 0 }}</td>
-	   							<td>{{data.stats.total.cam.click[camp.id] || 0 }}</td>
-	   							<td>{{ calcCTR(data.stats.total.cam,camp.id)}} </td>
-	   							<td><a ng-click="$event.stopPropagation();clearStats('cam',camp.id)" title="Clear stats"><span class="fa fa-eraser"></span></a></td>
+	   							<td>{{totalStats('cam',camp.id)}}</td>
+	   							<td>{{instantStats('cam',camp.id,'week')}}</td>
+	   							<td>{{instantStats('cam',camp.id,'day')}}</td>
+	   							<td>{{instantStats('cam',camp.id,'hour')}}</td>
 	   						</tr>
    						</tbody>
    					</table>
@@ -340,10 +340,10 @@
 					   							<th>Id</th>
 					   							<th>Type</th>
 					   							<th>Size</th>
-					   							<th>Imprs</th>
-					   							<th>Clicks</th>
-					   							<th>CTR %</th>
-					   							<th></th>
+					   							<th>Total</th>
+					   							<th>Week</th>
+					   							<th>Day</th>
+					   							<th>Hour</th>
 					   						</tr>
 					   					</thead>
 					   					<tbody>
@@ -353,10 +353,10 @@
 						        				<td>{{img.id}}</td>
 						        				<td>{{ img.url ? 'External':'Local' }}</td>
 						        				<td>{{img.size}}</td>
-					   							<td>{{data.stats.total.ima.impr[img.id] || 0 }}</td>
-					   							<td>{{data.stats.total.ima.click[img.id] || 0 }}</td>
-					   							<td>{{ calcCTR(data.stats.total.ima,img.id)}} </td>
-					   							<td><a ng-click="$event.stopPropagation();clearStats('ima',img.id)" title="Clear stats"><span class="fa fa-eraser"></span></a></td>
+					   							<td>{{totalStats('ima',img.id)}}</td>
+					   							<td>{{instantStats('ima',img.id,'week')}}</td>
+					   							<td>{{instantStats('ima',img.id,'day')}}</td>
+					   							<td>{{instantStats('ima',img.id,'hour')}}</td>
 						        			</tr>
 					        			</tbody>
 					        		</table>
@@ -519,10 +519,10 @@
 	   							<th>Name</th>
 	   							<th>Status</th>
 	   							<th>Id</th>
-	   							<th>Imprs</th>
-	   							<th>Clicks</th>
-	   							<th>CTR %</th>
-	   							<th></th>
+	   							<th>Total</th>
+	   							<th>Week</th>
+	   							<th>Day</th>
+	   							<th>Hour</th>
 	   						</tr>
 	   					</thead>
 	   					<tbody>
@@ -536,10 +536,10 @@
 	   							<td>{{ban.hid}}</td>
 	   							<td>{{ban.active?"Active":"Paused"}}</td>
 	   							<td>{{ban.id}}</td>
-	   							<td>{{data.stats.total.ban.impr[ban.id] || 0 }}</td>
-	   							<td>{{data.stats.total.ban.click[ban.id] || 0 }}</td>
-	   							<td>{{ calcCTR(data.stats.total.ban,ban.id)}} </td>
-	   							<td><a ng-click="$event.stopPropagation();clearStats('ban',ban.id)" title="Clear stats"><span class="fa fa-eraser"></span></a></td>
+	   							<td>{{totalStats('ban',ban.id)}}</td>
+	   							<td>{{instantStats('ban',ban.id,'week')}}</td>
+	   							<td>{{instantStats('ban',ban.id,'day')}}</td>
+	   							<td>{{instantStats('ban',ban.id,'hour')}}</td>
 	   						</tr>
 	   					</tbody>
    					</table>
@@ -726,10 +726,10 @@
 	   							<th>Status</th>
 	   							<th>Id</th>
 	   							<th>Size</th>
-	   							<th>Imprs</th>
-	   							<th>Clicks</th>
-	   							<th>CTR %</th>
-	   							<th></th>
+	   							<th>Total</th>
+	   							<th>Week</th>
+	   							<th>Day</th>
+	   							<th>Hour</th>
 	   						</tr>
 	   					</thead>
 	   					<tbody>
@@ -748,14 +748,10 @@
 	   							<td>{{ inv.active?"Active":"Paused"}}</td>
 	   							<td>{{ inv.id }}</td>
 	   							<td>{{ inv.size }}</td>
-	   							<td>{{ data.stats.total.inv.impr[inv.id] || 0 }}</td>
-	   							<td>{{ data.stats.total.inv.click[inv.id] || 0 }}</td>
-	   							<td>{{ calcCTR(data.stats.total.inv,inv.id) }} </td>
-	   							<td>
-	   								<a ng-click="$event.stopPropagation();clearStats('inv',inv.id)" title="Clear stats">
-	   									<span class="fa fa-eraser"></span>
-	   								</a>
-	   							</td>
+	   							<td>{{totalStats('inv',inv.id)}}</td>
+	   							<td>{{instantStats('inv',inv.id,'week')}}</td>
+	   							<td>{{instantStats('inv',inv.id,'day')}}</td>
+	   							<td>{{instantStats('inv',inv.id,'hour')}}</td>
 	   						</tr>
 	   					</tbody>
    					</table>

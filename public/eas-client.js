@@ -983,6 +983,44 @@ angular.module('EASApp').controller('EASCtrl',
 			return tooltip;
 		}
 		
+		$scope.instantStats = function(what,id,period) {
+			if(!$scope.data.stats[period])
+				return "";
+			var duration = $scope.data.stats[period].duration;
+			var now = $scope.data.now;
+			console.info("+++",what,id,period);
+			console.info("***",!!$scope.data.stats[period],!!$scope.data.stats[period][what],!!$scope.data.stats[period][what][id])
+			var instant = $scope.data.stats[period][what][id];
+			if(!instant)
+				return "";
+			var currentDuration = now - instant.lastEnd;
+			var missingDuration = duration - currentDuration;
+			var lastDuration = instant.lastEnd - instant.lastStart;
+			var imprs = instant.current.impr;
+			var clicks = instant.current.click;
+			if(lastDuration>0) {
+				imprs += instant.last.impr * (missingDuration/lastDuration);
+				clicks += instant.last.click * (missingDuration/lastDuration);
+			}
+			var str = clicks + "/" + imprs;
+			if(imprs)
+				str += " ("+Math.round(clicks*10000/imprs)/100+"%)";
+			return str;
+		}
+		
+		$scope.totalStats = function(what,id) {
+			var totalStats = $scope.data.stats.total; 
+			if(!totalStats)
+				return "";
+			var total = totalStats[what];
+			var imprs = total.impr[id] || 0;
+			var clicks = total.click[id] || 0;
+			var str = clicks + "/" + imprs;
+			if(imprs)
+				str += " ("+Math.round(clicks*10000/imprs)/100+"%)";
+			return str;
+		}
+		
 		$scope.countries = [ // Taken from https://gist.github.com/unceus/6501985
              {name: 'Afghanistan', code: 'AF'},
              {name: 'Aland Islands', code: 'AX'},
