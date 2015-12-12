@@ -999,8 +999,8 @@ angular.module('EASApp').controller('EASCtrl',
 			var imprs = instant.current.impr;
 			var clicks = instant.current.click;
 			if(lastDuration>0) {
-				imprs += instant.last.impr * (missingDuration/lastDuration);
-				clicks += instant.last.click * (missingDuration/lastDuration);
+				imprs += Math.round(instant.last.impr * (missingDuration/lastDuration));
+				clicks += Math.round(instant.last.click * (missingDuration/lastDuration));
 			}
 			var str = clicks + "/" + imprs;
 			if(imprs)
