@@ -787,9 +787,53 @@ angular.module('EASApp').controller('EASCtrl',
 		$scope.calcInventoryUsage = function() {
 			if(!$scope.data || !$scope.data.ads || !$scope.data.ads.inventory)
 				return;
+			var now = $scope.data.now;
 			$scope.inventoryUsage = {};
 			for(var invId in $scope.data.ads.inventory) {
 				var inv = $scope.data.ads.inventory[invId];
+				
+				var uroll = {
+					total: 0,
+					campaignPercent: {},
+				};
+				var roll = $scope.data.stats.roll[invId];
+				if(roll) {
+					var total = roll.currentCount + roll.lastCount;
+					if(total>0) {
+						uroll.total = total;
+						uroll.perday = Math.round(total * ( 24*60*60*1000 / (now-roll.lastStart)));
+						var campaigns0 = {}
+						for(var cid in roll.current) {
+							if(cid[0]=='_')
+								continue;
+							campaigns0[cid] = roll.current[cid];
+						}
+						for(var cid in roll.last) {
+							if(cid[0]=='_')
+								continue;
+							campaigns0[cid] = (campaigns0[cid] || 0) + roll.last[cid];
+						}
+						var background = 0;
+						var scheduled = 0;
+						for(var cid in campaigns0) {
+							var campaign = $scope.data.ads.campaign[cid];
+							uroll.campaignPercent[cid] = Math.round(campaigns0[cid]*100/total);
+							if(campaign) {
+								if(campaign.type=='background')
+									background += campaigns0[cid];
+								else
+									scheduled += campaigns0[cid];
+							}
+						}
+						uroll.backgroundPercent = Math.round(background*100/total);
+						uroll.scheduledPercent = Math.round(scheduled*100/total)
+						var missedBanner = (roll.current['_noBanner'] || 0) + (roll.last['_noBanner'] || 0);
+						uroll.missedBannerPercent = Math.round(missedBanner*100/total)
+						var missedCampaign = (roll.current['_noCampaign'] || 0) + (roll.last['_noCampaign'] || 0);
+						uroll.missedCampaignPercent = Math.round(missedCampaign*100/total)
+					}
+				}
+				
 				var banners = {};
 				var campaigns = {};
 				if(inv.active) {
@@ -817,6 +861,7 @@ angular.module('EASApp').controller('EASCtrl',
 				$scope.inventoryUsage[invId] = {
 					banners: banners,
 					campaigns: campaigns,
+					roll: uroll,
 				};
 			}
 		}
@@ -890,8 +935,12 @@ angular.module('EASApp').controller('EASCtrl',
 			if(campaignsCount>0) {
 				tooltip += '<div><strong>Campaigns:</strong></div><div>';
 				var campaigns = [];
-				for(var cid in usage.campaigns)
-					campaigns.push($scope.data.ads.campaign[cid].hid);
+				for(var cid in usage.campaigns) {
+					var campStr = $scope.data.ads.campaign[cid].hid;
+					if(usage.roll.campaignPercent[cid])
+						campStr += ' ('+ usage.roll.campaignPercent[cid] + '%)';
+					campaigns.push(campStr);
+				}
 				tooltip += campaigns.join(", ");			
 				tooltip += '</div>';
 			}
@@ -903,7 +952,15 @@ angular.module('EASApp').controller('EASCtrl',
 				tooltip += banners.join(", ");
 				tooltip += '</div>';
 			}
-			if(bannersCount==0 && campaignsCount==0)
+			if(usage.roll.total>0) {
+				tooltip += '<div><strong>Usage:</strong></div>';
+				tooltip += '<div>'+usage.roll.perday + " imprs per day</div>";
+				tooltip += '<div>Scheduled '+usage.roll.scheduledPercent+'%</div>';
+				tooltip += '<div>Background '+usage.roll.backgroundPercent+'%</div>';
+				tooltip += '<div>Missed no banner '+usage.roll.missedBannerPercent+'%</div>';
+				tooltip += '<div>Missed no campaign '+usage.roll.missedCampaignPercent+'%</div>';
+			}
+			if(bannersCount==0 && campaignsCount==0 && usage.roll.total==0)
 				tooltip += '<strong>Not used</strong>';
 			tooltip += '</div>';
 			return tooltip;
