@@ -42,7 +42,7 @@ module.exports = function(config) {
 		},
 	}
 	var ads = extend(true,{},adsEmpty);
-	var stats = {
+	var statsEmpty = {
 		total: {
 			inv: { impr: {}, click: {} },
 			cam: { impr: {}, click: {} },
@@ -52,7 +52,18 @@ module.exports = function(config) {
 		period: { impr: {}, click: {} },
 		periodDraw: {},
 		periodTime: {},
+		roll: {
+			/* [inventoryId] = {
+					last: { campaign.id: campaign.count },
+					lastCount: 0,
+					lastStart: 0,
+					lastEnd: 0,
+					current: { campaign.id: campaign.count },
+					currentCount: 0,
+				} */
+		}
 	}
+	var stats = extend(true,{},statsEmpty);
 	var exports = {};
 	
 	var gm;
@@ -139,11 +150,40 @@ module.exports = function(config) {
 		Updated('stats');
 	}
 	
+	function AddRoll(iid,cid) {
+		var now = Date.now();
+		var roll = stats.roll[iid]; 
+		if(!roll)
+			stats.roll[iid] = roll = {
+				last: { },
+				lastCount: 0,
+				lastStart: now,
+				lastEnd: now,
+				current: { },
+				currentCount: 0,
+			}
+		roll.lastHitTime = now;
+		roll.current[cid] = (roll.current[cid] || 0) + 1;
+		roll.currentCount ++;
+		if(roll.currentCount>=config.rollBacklog) {
+			roll.last = roll.current;
+			roll.lastCount = roll.currentCount;
+			roll.lastStart = roll.lastEnd;
+			roll.lastEnd = now;
+			roll.current = {};
+			roll.currentCount = 0;
+		}
+	}
+	
 	const periodDuration = 60 * 60 * 1000;
 	
 	setInterval(function() {
 		if(modified.stats)
 			SaveToFile('stats');
+		var now = Date.now();
+		for(var iid in stats.roll)
+			if(now - stats.roll[iid].lastHitTime > config.rollExpire)
+				delete stats.roll[iid];
 	},60*1000);
 	
 	var missedInventory = {};
@@ -193,6 +233,10 @@ module.exports = function(config) {
 		}
 		return ads;
 	}
+
+	function FixStats(stats) {
+		return extend(true,{},statsEmpty,stats);
+	}
 	
 	function LoadFromFile(which) {
 		fs.readFile(file[which],"utf-8",function(err,data) {
@@ -204,7 +248,9 @@ module.exports = function(config) {
 					ads = FixAds(JSON.parse(data));
 					UpdateRevert();
 					break; 
-				case "stats": stats = JSON.parse(data); break;
+				case "stats": 
+					stats = FixStats(JSON.parse(data)); 
+					break;
 				}
 				modified[which] = false;
 				return;
@@ -529,9 +575,12 @@ module.exports = function(config) {
 			for(var cid in banner2campaign[bid])
 				campaigns0[cid] = 1;
 		}
-		if(!gotBanner && config.debugDeliver)
-			console.info("EAS - no suitable banner for",invHid);
-		var campaigns1 = {}
+		if(!gotBanner) {
+			AddRoll(inventory.id,"_noBanner");
+			if(config.debugDeliver)
+				console.info("EAS - no suitable banner for",invHid);
+			return ad;
+		}
 		var totalWeight = 0;
 		var weightedCampaigns = [];
 		var priorityCampaigns = [];
@@ -586,7 +635,6 @@ module.exports = function(config) {
 					});
 				}
 			}
-			campaigns1[cid] = 1;
 		}
 		
 		while(!pickedCampaign && priorityCampaigns.length>0) {
@@ -612,10 +660,11 @@ module.exports = function(config) {
 	
 		if(!pickedCampaign) {
 			if(config.debugDeliver)
-				console.info("EAS - no suitable campaign for inventory",invHid)
+				console.info("EAS - no suitable campaign for",invHid)
+			AddRoll(inventory.id,"_noCampaign");
 			return ad;
 		}
-	
+
 		var campaign = pickedCampaign;
 		
 		var banners2 = [];
@@ -658,6 +707,7 @@ module.exports = function(config) {
 		IncrStats('impr','cam',campaign.id);
 		IncrStats('impr','ban',banner.id);
 		IncrStats('impr','ima',image.id);
+		AddRoll(inventory.id,campaign.id);
 		return ad;
 	}
 	

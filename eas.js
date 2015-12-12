@@ -45,6 +45,8 @@ module.exports = function(app,config) {
 			console.warn("EAS - admin interface authentication not set");
 			next();
 		},
+		rollBacklog: 1000,
+		rollExpire: 48*60*60*1000,
 	},config);
 	config.adminPath = config.adminPath || (config.path + "/admin");
 	config.adminStyles['eas'] = config.adminPath + '/public/style.css'
