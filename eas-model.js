@@ -49,6 +49,20 @@ module.exports = function(config) {
 			ban: { impr: {}, click: {} },
 			ima: { impr: {}, click: {} },
 		},
+		week: {
+			duration: 7*24*60*60*1000,
+			inv: {  
+				/* [id] = {
+					last: { impr: 0, click: 0 },
+					lastStart: 0,
+					lastEnd: 0,
+					current: { impr: 0, click: 0 },
+				} */
+			},
+			cam: {  }, ban: {  }, ima: {  } 
+		},
+		day: { duration: 24*60*60*1000, inv: { }, cam: { }, ban: { }, ima: {  } },
+		hour: { duration: 60*60*1000, inv: { }, cam: { }, ban: { }, ima: {  } },
 		period: { impr: {}, click: {} },
 		periodDraw: {},
 		periodTime: {},
@@ -137,16 +151,38 @@ module.exports = function(config) {
 		}
 	} 
 	
+	function IncrStatsInstant(type,what,id,periodName) {
+		var now = Date.now();
+		var duration = stats[periodName].duration;
+		var instant = stats[periodName][what][id];
+		if(!instant)
+			instant = stats[periodName][what][id] = {
+				last: { impr: 0, click: 0 },
+				lastStart: now,
+				lastEnd: now,
+				current: { impr: 0, click: 0 },
+			}
+		if(instant.lastEnd + duration < now) {
+			instant.lastStart = instant.lastEnd;
+			instant.lastEnd = now;
+			instant.last = instant.current;
+			instant.current = { impr: 0, click: 0 };
+		}
+		instant.current[type] ++;
+	}
+	
 	function IncrStats(type,what,id) {
 		stats.total[what][type][id] = (stats.total[what][type][id] || 0) + 1;
 		if(what=='cam') {
 			var campaign = ads.campaign[id];
 			if(campaign) {
-				//console.info("Campaign",campaign.hid,"got event",type,"at",new Date().toLocaleTimeString());
 				EnsuresCampaignIntegrity(campaign);
 				stats.period[type][campaign.id]++;
 			}
 		}
+		IncrStatsInstant(type,what,id,'week');
+		IncrStatsInstant(type,what,id,'day');
+		IncrStatsInstant(type,what,id,'hour');
 		Updated('stats');
 	}
 	
