@@ -297,6 +297,20 @@ angular.module('EASApp').controller('EASCtrl',
 			}
 		}
 		
+		$scope.removeSelected = function() {
+			if(['campaign','banner','inventory'].indexOf($scope.local.tab)>=0) {
+				var count = 0;
+				for(var id in $scope.context.selected)
+					if($scope.context.selected[id])
+						count++;
+				if(confirm("Do you really want to remove "+count+" item"+(count>1?"s":"")+" ?")) {
+					Call('/remove-group',{type: $scope.local.tab, ids: $scope.context.selected},function(err,data) {
+						$scope.getAds();
+					});
+				}
+			}
+		}
+		
 		$scope.mustHaveEnd = function() {
 			return $scope.context.campaign && (
 				$scope.context.campaign.type=='click' || $scope.context.campaign.type=='impr' 
@@ -470,14 +484,27 @@ angular.module('EASApp').controller('EASCtrl',
 		}
 
 		$scope.campaignStatus = function(campaign) {
-			if(campaign.start && campaign.start>$scope.data.now)
-				return "Waiting "+TimeToText(campaign.start-$scope.data.now);
-			if(campaign.end && campaign.end<$scope.data.now)
-				return "Complete";
-			if(campaign.active)
-				return "Running";
+			if(campaign.start && campaign.start>$scope.data.now) {
+				return {
+					title: "Waiting "+TimeToText(campaign.start-$scope.data.now),
+					clazz: "fa-clock-o",
+				}
+			}
+			if(campaign.end && campaign.end<$scope.data.now) 
+				return {
+					title: "Complete",
+					clazz: "fa-times",
+				}
+			if(campaign.active) 
+				return {
+					title: "Running",
+					clazz: "fa-play",
+				}
 			else
-				return "Paused";
+				return {
+					title: "Paused",
+					clazz: "fa-pause",
+				}
 		}
 		
 		/* banner */

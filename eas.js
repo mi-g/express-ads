@@ -360,6 +360,14 @@ module.exports = function(app,config) {
 		});		
 	});
 
+	app.post(adminApiPath + '/remove-group', function(req, res) {
+		AdminApiCall(req,res,function(req,cb) {
+			ads.removeGroup(req.body.type,req.body.ids,function(err) {
+				cb(err,{});				
+			});
+		});		
+	});
+
 
 	var eas = {
 		deliver: Deliver,

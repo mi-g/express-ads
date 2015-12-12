@@ -520,6 +520,18 @@ module.exports = function(config) {
 		callback(null,{});
 	}
 	
+	exports.removeGroup = function(type,ids,callback) {
+		if(ads[type]) {
+			for(var id in ids) {
+				var item = ads[type][id];
+				if(item)
+					delete ads[type][id];
+			}
+			Updated('ads');
+		}
+		callback(null,{});
+	}
+	
 	exports.pick = function(invHid,options) {
 		options = options || {};
 		

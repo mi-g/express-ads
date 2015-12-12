@@ -31,6 +31,8 @@
 						<div class="btn-group">
 							<a ng-click="cancelCampaign()" class="btn btn-default">
 								<span class="fa fa-ban"> Cancel</span></a></li>
+							<a ng-click="removeCampaign(context.campaign)" class="btn btn-default">
+								<span class="fa fa-trash"> Remove</span></a></li>
 							<a ng-show="!context.campaign.id" ng-click="saveCampaign()" class="btn btn-primary">
 								<span class="fa fa-plus"> Add</span></a>
 							<a ng-show="context.campaign.id && changedCampaign()" ng-click="saveCampaign()" class="btn btn-primary">
@@ -149,6 +151,7 @@
 								<ul class="dropdown-menu">
 		   							<li><a ng-click="activeSelected(true)"><span class="fa fa-play"> &nbsp;Active</span></a></li>
 	   								<li><a ng-click="activeSelected(false)"><span class="fa fa-pause"> &nbsp;Pause</span></a></li>
+	   								<li><a ng-click="removeSelected()"><span class="fa fa-trash"> &nbsp;Remove</span></a></li>
 								</ul>
 		 						<a ng-click="newCampaign()" class="btn btn-default"><span class="fa fa-plus"> New Campaign</span></a>
 							</div>
@@ -206,10 +209,9 @@
    					<table ng-show="campaignCount()>0" class="table table-striped table-hover">
    						<thead>
 	   						<tr>
-	   							<th></th>
 	   							<th><span class="fa fa-check" ng-click="selectionToggle()"></span></th>
+	   							<th></th>
 	   							<th>Name</th>
-	   							<th>Status</th>
 	   							<th>Id</th>
 	   							<th>Type</th>
 	   							<th>Remains</th>
@@ -223,12 +225,11 @@
 	   						<tr ng-repeat="camp in data.ads.campaign | toArray | filter:filterCampaign" 
 	   							vdh-tooltip="campaignTooltip(camp)" 
 	   							ng-click="selectCampaign(camp)">
-	   							<td><a ng-click="$event.stopPropagation();removeCampaign(camp)" title="Remove campaign"><span class="fa fa-trash"></span></a></td>
 	   							<td>
 	   								<input type="checkbox" ng-model="context.selected[camp.id]" ng-click="$event.stopPropagation()"/>
 	   							</td>
+	   							<td><span class="fa" ng-class="campaignStatus(camp).clazz" title="{{campaignStatus(camp).title}}"></span> </td>
 	   							<td>{{camp.hid}}</td>
-	   							<td>{{campaignStatus(camp)}}</td>
 	   							<td>{{camp.id}}</td>
 	   							<td>{{campTypeLabel(camp.type)}}</td>
 	   							<td>{{campRemains(camp.id)}}</td>
@@ -247,6 +248,8 @@
    					<div class="eas-tb">
 						<div class="btn-group">
 	 						<a ng-click="cancelBanner()" class="btn btn-default"><span class="fa fa-ban"> Cancel</span></a>
+							<a ng-click="removeBanner(context.banner)" class="btn btn-default">
+								<span class="fa fa-trash"> Remove</span></a></li>
 	 						<a ng-show="!context.banner.id" ng-click="saveBanner()" class="btn btn-primary"><span class="fa fa-plus"> Add</span></a>
 	 						<a ng-show="context.banner.id && changedBanner()" ng-click="saveBanner()" class="btn btn-primary"><span class="fa fa-plus"> Update</span></a>
 	 					</div>
@@ -462,6 +465,7 @@
 								<ul class="dropdown-menu">
 		   							<li><a ng-click="activeSelected(true)"><span class="fa fa-play"> &nbsp;Active</span></a></li>
 	   								<li><a ng-click="activeSelected(false)"><span class="fa fa-pause"> &nbsp;Pause</span></a></li>
+	   								<li><a ng-click="removeSelected()"><span class="fa fa-trash"> &nbsp;Remove</span></a></li>
 								</ul>
 		 						<a ng-click="newBanner()" class="btn btn-default"><span class="fa fa-plus"> New Banner</span></a>
 							</div>
@@ -518,8 +522,8 @@
    					<table ng-show="bannerCount()>0" class="table table-striped table-hover">
    						<thead>
 	   						<tr>
-	   							<th></th>
 	   							<th><span class="fa fa-check" ng-click="selectionToggle()"></span></th>
+	   							<th></th>
 	   							<th>Name</th>
 	   							<th>Status</th>
 	   							<th>Id</th>
@@ -533,12 +537,12 @@
 	   						<tr ng-repeat="ban in data.ads.banner | toArray | filter:filterBanner" 
 	   							vdh-tooltip="bannerTooltip(ban)" 
 	   							ng-click="selectBanner(ban)">
-	   							<td><a ng-click="$event.stopPropagation();removeBanner(ban)" title="Remove banner"><span class="fa fa-trash"></span></a></td>
 	   							<td>
 	   								<input type="checkbox" ng-model="context.selected[ban.id]" ng-click="$event.stopPropagation()"/>
 	   							</td>
+	   							<td><span class="fa" ng-class="{'fa-play':ban.active,'fa-pause':!ban.active}" 
+	   								title="{{ban.active?'Active':'Paused'}}"></span> </td>
 	   							<td>{{ban.hid}}</td>
-	   							<td>{{ban.active?"Active":"Paused"}}</td>
 	   							<td>{{ban.id}}</td>
 	   							<td>{{totalStats('ban',ban.id)}}</td>
 	   							<td>{{instantStats('ban',ban.id,'week')}}</td>
@@ -555,6 +559,8 @@
    					<div class="eas-tb">
 						<div class="btn-group">
 	 						<a ng-click="cancelInventory()" class="btn btn-default"><span class="fa fa-ban"> Cancel</span></a>
+							<a ng-click="removeInventory(context.inventory)" class="btn btn-default">
+								<span class="fa fa-trash"> Remove</span></a></li>
 	 						<a ng-show="!context.inventory.id" ng-click="saveInventory()" class="btn btn-primary"><span class="fa fa-plus"> Add</span></a>
 	 						<a ng-show="context.inventory.id && changedInventory()" ng-click="saveInventory()" class="btn btn-primary"><span class="fa fa-plus"> Update</span></a>
 	 					</div>
@@ -669,6 +675,7 @@
 								<ul class="dropdown-menu">
 		   							<li><a ng-click="activeSelected(true)"><span class="fa fa-play"> &nbsp;Active</span></a></li>
 	   								<li><a ng-click="activeSelected(false)"><span class="fa fa-pause"> &nbsp;Pause</span></a></li>
+	   								<li><a ng-click="removeSelected()"><span class="fa fa-trash"> &nbsp;Remove</span></a></li>
 								</ul>
 								<button ng-click="newInventory()" class="btn btn-default"><span class="fa fa-plus"> New Inventory</span></button>
 							</div>
@@ -726,10 +733,9 @@
    					<table ng-show="inventoryCount()>0" class="table table-striped table-hover">
    						<thead>
 	   						<tr>
-	   							<th></th>
 	   							<th><span class="fa fa-check" ng-click="selectionToggle()"></span></th>
+	   							<th></th>
 	   							<th>Name</th>
-	   							<th>Status</th>
 	   							<th>Id</th>
 	   							<th>Size</th>
 	   							<th>Total</th>
@@ -750,8 +756,9 @@
 	   							<td>
 	   								<input type="checkbox" ng-model="context.selected[inv.id]" ng-click="$event.stopPropagation()"/>
 	   							</td>
+	   							<td><span class="fa" ng-class="{'fa-play':inv.active,'fa-pause':!inv.active}" 
+	   								title="{{inv.active?'Active':'Paused'}}"></span> </td>
 	   							<td>{{ inv.hid }}</td>
-	   							<td>{{ inv.active?"Active":"Paused"}}</td>
 	   							<td>{{ inv.id }}</td>
 	   							<td>{{ inv.size }}</td>
 	   							<td>{{totalStats('inv',inv.id)}}</td>
