@@ -325,6 +325,8 @@ angular.module('EASApp').controller('EASCtrl',
 
 		$scope.getAds = function(callback) {
 			Call('/',{},function(err,data) {
+				$(".tooltip").hide();
+		    	$("[vdh-tooltip]").tooltip('hide');
 				if(!err) {
 					$scope.data = data;
 					angular.extend($scope.osFamilies,data.osFamilies);
@@ -1015,8 +1017,6 @@ angular.module('EASApp').controller('EASCtrl',
 				return "";
 			var duration = $scope.data.stats[period].duration;
 			var now = $scope.data.now;
-			console.info("+++",what,id,period);
-			console.info("***",!!$scope.data.stats[period],!!$scope.data.stats[period][what],!!$scope.data.stats[period][what][id])
 			var instant = $scope.data.stats[period][what][id];
 			if(!instant)
 				return "";
@@ -1293,7 +1293,10 @@ angular.module('EASApp').controller('EASCtrl',
              {name: 'Zambia', code: 'ZM'},
              {name: 'Zimbabwe', code: 'ZW'}
            ];
-		
+		$("body").on("click",function() {
+			$(".tooltip").hide();
+	    	$("[vdh-tooltip]").tooltip('hide');
+		});
 	}
 ]);
 
@@ -1319,6 +1322,7 @@ angular.module('EASApp').directive('vdhTooltip',
 					container: "body",
 		    	});
 		    	scope.$on('$destroy',function() {
+		    		$(element[0]).tooltip('hide');
 			    	$(element[0]).tooltip('destroy');
 		    	});
 		    },
