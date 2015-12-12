@@ -1021,7 +1021,7 @@ angular.module('EASApp').controller('EASCtrl',
 			if(!instant)
 				return "";
 			var currentDuration = now - instant.lastEnd;
-			var missingDuration = duration - currentDuration;
+			var missingDuration = Math.max(0,duration - currentDuration);
 			var lastDuration = instant.lastEnd - instant.lastStart;
 			var imprs = instant.current.impr;
 			var clicks = instant.current.click;
