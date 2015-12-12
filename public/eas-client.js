@@ -296,7 +296,6 @@ angular.module('EASApp').controller('EASCtrl',
 				});				
 			}
 		}
-
 		
 		$scope.mustHaveEnd = function() {
 			return $scope.context.campaign && (

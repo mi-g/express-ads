@@ -141,7 +141,17 @@
    				<div>
    					<div class="eas-tb">
 						<div class="btn-group">
-	 						<a ng-click="newCampaign()" class="btn btn-default"><span class="fa fa-plus"> New Campaign</span></a>
+							<div class="dropdown">
+								<button ng-show="selectedCount()>0" class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+							    	With selected ...
+							    	<span class="caret"></span>
+								</button>
+								<ul class="dropdown-menu">
+		   							<li><a ng-click="activeSelected(true)"><span class="fa fa-play"> &nbsp;Active</span></a></li>
+	   								<li><a ng-click="activeSelected(false)"><span class="fa fa-pause"> &nbsp;Pause</span></a></li>
+								</ul>
+		 						<a ng-click="newCampaign()" class="btn btn-default"><span class="fa fa-plus"> New Campaign</span></a>
+							</div>
 	 					</div>
 
 						<div class="btn-group pull-right">
@@ -195,6 +205,7 @@
    						<thead>
 	   						<tr>
 	   							<th></th>
+	   							<th><span class="fa fa-check" ng-click="selectionToggle()"></span></th>
 	   							<th>Name</th>
 	   							<th>Status</th>
 	   							<th>Id</th>
@@ -211,6 +222,9 @@
 	   							vdh-tooltip="campaignTooltip(camp)" 
 	   							ng-click="selectCampaign(camp)">
 	   							<td><a ng-click="$event.stopPropagation();removeCampaign(camp)" title="Remove campaign"><span class="fa fa-trash"></span></a></td>
+	   							<td>
+	   								<input type="checkbox" ng-model="context.selected[camp.id]" ng-click="$event.stopPropagation()"/>
+	   							</td>
 	   							<td>{{camp.hid}}</td>
 	   							<td>{{campaignStatus(camp)}}</td>
 	   							<td>{{camp.id}}</td>
@@ -438,7 +452,17 @@
    				<div>
    					<div class="eas-tb">
 						<div class="btn-group">
-	 						<a ng-click="newBanner()" class="btn btn-default"><span class="fa fa-plus"> New Banner</span></a>
+							<div class="dropdown">
+								<button ng-show="selectedCount()>0" class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+							    	With selected ...
+							    	<span class="caret"></span>
+								</button>
+								<ul class="dropdown-menu">
+		   							<li><a ng-click="activeSelected(true)"><span class="fa fa-play"> &nbsp;Active</span></a></li>
+	   								<li><a ng-click="activeSelected(false)"><span class="fa fa-pause"> &nbsp;Pause</span></a></li>
+								</ul>
+		 						<a ng-click="newBanner()" class="btn btn-default"><span class="fa fa-plus"> New Banner</span></a>
+							</div>
 	 					</div>
 
 						<div class="btn-group pull-right">
@@ -491,6 +515,7 @@
    						<thead>
 	   						<tr>
 	   							<th></th>
+	   							<th><span class="fa fa-check" ng-click="selectionToggle()"></span></th>
 	   							<th>Name</th>
 	   							<th>Status</th>
 	   							<th>Id</th>
@@ -505,6 +530,9 @@
 	   							vdh-tooltip="bannerTooltip(ban)" 
 	   							ng-click="selectBanner(ban)">
 	   							<td><a ng-click="$event.stopPropagation();removeBanner(ban)" title="Remove banner"><span class="fa fa-trash"></span></a></td>
+	   							<td>
+	   								<input type="checkbox" ng-model="context.selected[ban.id]" ng-click="$event.stopPropagation()"/>
+	   							</td>
 	   							<td>{{ban.hid}}</td>
 	   							<td>{{ban.active?"Active":"Paused"}}</td>
 	   							<td>{{ban.id}}</td>
