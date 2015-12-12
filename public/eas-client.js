@@ -11,8 +11,6 @@ angular.module('EASApp').controller('EASCtrl',
 	['$scope', '$http',
 	 function ($scope,$http) {
 
-		console.info("EASCtrl");
-		
 		$scope.data = {};
 		$scope.context = {
 			inventory: null,
@@ -188,7 +186,6 @@ angular.module('EASApp').controller('EASCtrl',
 		function Call(apiUrl,apiParams,callback) {
 			$scope.loading = true;
 
-			console.info("Call",apiUrl,apiParams)
 			$http.post(easAPI + apiUrl,apiParams).then(function(data) {
 				$scope.loading = false;
 				if(!data.data.status)
@@ -448,7 +445,6 @@ angular.module('EASApp').controller('EASCtrl',
 		}
 
 		$scope.saveCampaign = function() {
-			console.info("/set-campaign",$scope.context.campaign)
 			Call('/set-campaign',{campaign: $scope.context.campaign},function(err,data) {
 				$scope.getAds();
 			});
