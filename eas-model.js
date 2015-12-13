@@ -400,12 +400,48 @@ module.exports = function(config) {
 		}
 	}
 	
-	exports.setBanner = function(banner) {
+	exports.setBanner = function(banner,callback) {
 		if(!banner.id)
 			banner.id = MakeShortId();
-		ads.banner[banner.id] = banner;
-		Updated('ads');
-		return banner;
+		if(banner.type=='image') {
+			var tasks = 1;
+			function Done() {
+				if(--tasks==0) {
+					ads.banner[banner.id] = banner;
+					Updated('ads');
+					callback(banner);					
+				}
+			}
+			banner.images = banner.images || {};
+			for(var iid in banner.images) {
+				if(banner.images[iid].url)
+					continue;
+				tasks++;
+				var imagePath = __dirname + "/ads/images/"+iid+".png" 
+				fs.exists(imagePath,function(exists) {
+					if(exists)
+						return Done();
+					var tmpPath = __dirname + "/ads/tmp/"+iid+".png"; 
+					fs.exists(tmpPath,function(exists) {
+						if(exists) {
+							fs.rename(tmpPath,imagePath,function(err) {
+								if(err)
+									delete banner.images[iid];
+								Done();
+							});
+						} else {
+							delete banner.images[iid];
+							return Done();
+						}						
+					});
+				});
+			}
+			Done();
+		} else {
+			ads.banner[banner.id] = banner;
+			Updated('ads');
+			callback(banner);
+		}
 	}
 	
 	exports.removeBanner = function(iid) {
@@ -426,7 +462,7 @@ module.exports = function(config) {
 		var m = /^[^\?]+\.([^\?\.]+)/.exec(url);
 		if(m)
 			extension = m[1];
-		var raw = __dirname + "/ads/tmp/"+id+"."+extension;
+		var raw = __dirname + "/ads/tmp/"+id+"-raw."+extension;
 		try {
 			var r = request.get({ 
 				url: url,
@@ -464,21 +500,27 @@ module.exports = function(config) {
 								Updated('ads');
 								callback(null,{image:images[id]});							
 							} else {
-								var finalFile = __dirname + "/ads/images/"+id+".png";
+								var finalFile = __dirname + "/ads/tmp/"+id+".png";
 								gm(raw)
 								.noProfile()
 								.write(finalFile, function (err) {
 									if(err)
 										return callback(new Error("Could not write file "+finalFile+": "+err));
-									var images = banner.images;
-									if(!images)
-										images = banner.images = {};
-									images[id] = {
+									var image = {
 										id: id,
 										size: sizeKey,
 									}
-									Updated('ads');
-									callback(null,{image:images[id]});
+									var frameFile = __dirname + "/ads/tmp/"+id+"-0.png";
+									fs.exists(frameFile,function(exists) {
+										if(exists) 
+											fs.rename(frameFile,finalFile,function(err) {
+												if(err)
+													return callback(new Error("Could not rename file "+frameFile+": "+err));
+												return callback(null,image);												
+											});
+										else
+											return callback(null,image);
+									});
 								});
 							}
 						});
@@ -487,16 +529,6 @@ module.exports = function(config) {
 		} catch(e) {
 			callback(e);
 		}
-	}
-	
-	exports.removeBannerImage = function(bid,iid,callback) {
-		var banner = ads.banner[bid];
-		if(!banner)
-			return callback(new Error("Unknown banner id "+bid));
-		if(!banner.images[iid])
-			return callback(new Error("Unknown banner image id "+iid));
-		delete banner.images[iid];
-		callback(null,{});
 	}
 	
 	exports.clearStats = function(type,id,callback) {

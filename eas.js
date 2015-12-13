@@ -233,10 +233,18 @@ module.exports = function(app,config) {
 
 	app.get(config.path + '/images/:file',function(req,res) {
 		var filePath =  path.resolve(__dirname,"ads/images/"+req.params.file);
-		if(filePath.indexOf(__dirname+"/ads/images/")==0)
-			res.header('Cache-Control','public, max-age='+config.staticMaxAge)
-				.sendFile(filePath);
-		else // TODO hack attempt = block IP
+		if(filePath.indexOf(__dirname+"/ads/images/")==0) {
+			fs.exists(filePath,function(exists) {
+				if(exists)
+					res.header('Cache-Control','public, max-age='+config.staticMaxAge)
+						.sendFile(filePath);
+				else {
+					filePath = path.resolve(__dirname,"ads/tmp/"+req.params.file);
+					res.header('Cache-Control','public, max-age='+config.staticMaxAge)
+						.sendFile(filePath);
+				}
+			});
+		} else // TODO hack attempt = block IP
 			res.status(403).send("Forbidden");
 	});
 
@@ -307,8 +315,10 @@ module.exports = function(app,config) {
 
 	app.post(adminApiPath + '/set-banner', function(req, res) {
 		AdminApiCall(req,res,function(req,cb) {
-			cb(null,{
-				banner: ads.setBanner(req.body.banner),
+			ads.setBanner(req.body.banner,function(banner) {
+				cb(null,{
+					banner: banner,
+				});				
 			});
 		});		
 	});
@@ -332,14 +342,6 @@ module.exports = function(app,config) {
 		AdminApiCall(req,res,function(req,cb) {
 			ads.addBannerImage(req.body.bid,req.body.url,true,function(err,image) {
 				cb(err,{image:image});				
-			});
-		});		
-	});
-
-	app.post(adminApiPath + '/remove-banner-image', function(req, res) {
-		AdminApiCall(req,res,function(req,cb) {
-			ads.removeBannerImage(req.body.bid,req.body.iid,function(err) {
-				cb(err,{});				
 			});
 		});		
 	});

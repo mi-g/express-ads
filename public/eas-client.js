@@ -585,10 +585,10 @@ angular.module('EASApp').controller('EASCtrl',
 			Call('/add-banner-image',{bid: bid,url:imageUrl},function(err,data) {
 				if(err)
 					$scope.context.addImageError = err.data.error;
-				else
-					$scope.getAds(function() {
-						$scope.selectBanner($scope.data.ads.banner[bid]);
-					});
+				else  if($scope.context.banner) {
+					$scope.context.banner.images = $scope.context.banner.images || {};
+					$scope.context.banner.images[data.image.id] = data.image;
+				}
 			});
 		}
 		
@@ -608,16 +608,8 @@ angular.module('EASApp').controller('EASCtrl',
 		}
 		
 		$scope.removeBannerImage = function(img) {
-			if(confirm("Are you sure you want to remove the banner image ?")) {
-				var bid = $scope.context.banner.id;
-				Call('/remove-banner-image',{bid: bid,iid:img.id},function(err,data) {
-					if(!err) {
-						$scope.getAds(function() {
-							$scope.selectBanner($scope.data.ads.banner[bid]);
-						});
-					}
-				});
-			}
+			if(confirm("Are you sure you want to remove the banner image ?"))
+				delete $scope.context.banner.images[img.id];
 		}
 		
 		$scope.bannerImagesCount = function() {
