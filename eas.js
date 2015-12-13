@@ -143,35 +143,55 @@ module.exports = function(app,config) {
 			
 			if(!ad.banner && ad.inventory.nobanner=="hide")
 				return "";
+
+			function MakeLink(inside) {
+				return "<a href='/eas/"
+					+ad.inventory.id+"/"+ad.campaign.id+"/"+ad.banner.id+"/"+ad.content.id
+					+"' target='_blank' rel='nofollow'>"+inside+"</a>";
+			}
 			
 			options = options || {};
 			var styles = {};
-			var sizeMatch = /^([0-9]+)x([0-9]+)$/.exec(ad.inventory.size);
-			if(!sizeMatch)
-				return "";
-			var width = parseInt(sizeMatch[1]);
-			var height = parseInt(sizeMatch[2]);
+			var width, height;
+			if(ad.type=='image') {
+				var sizeMatch = /^([0-9]+)x([0-9]+)$/.exec(ad.inventory.size);
+				if(!sizeMatch)
+					return "";
+				width = parseInt(sizeMatch[1]);
+				height = parseInt(sizeMatch[2]);
+			}
 			var content;
 			if(ad.banner) {
 				styles=extend(styles,ad.inventory.styles,options.styles);
-				content="<a href='/eas/"
-					+ad.inventory.id+"/"+ad.campaign.id+"/"+ad.banner.id+"/"+ad.image.id
-					+"' target='_blank' rel='nofollow'>"
-					+"<img style='width:"+width+"px;height:"+height+"px' src='"+(ad.image.url ? ad.image.url : "/eas/images/"+ad.image.id+".png" )+"' alt='"
+				if(ad.type=='image')
+					content = "<img style='width:"+width+"px;height:"+height+"px' src='"+(ad.content.url ? ad.content.url : "/eas/images/"+ad.content.id+".png" )+"' alt='"
 					+encodeURIComponent(ad.banner.alt.trim())
 					+"'/></a>";
-			} else {
+				else {
+					var replFound = false;
+					content = ad.content.text.replace(/\[\[.*?\]\]/g,function(ph) {
+						replFound = true;
+						var str = ph.substr(2,ph.length-4);
+						return MakeLink(str);
+					});
+					if(!replFound)
+						content = MakeLink(ad.content.text);
+				}
+			} else if(ad.type=='text')
+				return '';
+			else {
 				content = "<div style='width:"+width+"px;height:"+height+"px'></div>";
 				styles={
 					visibility: 'hidden',
 				}
 			}
+			
 			var hasStyles=false;
 			for(var s in styles) {
 				hasStyles=true;
 				break;
 			}
-			var tag=options.tag || ad.inventory.tag || "div";
+			var tag=options.tag || ad.inventory.tag || (ad.type=='image'?"div":"p");
 			var parts=['<'+tag];
 			if(ad.inventory.classes.trim().length>0 || (options.classes && options.classes.length>0)) {
 				parts.push(" class='");
@@ -191,7 +211,7 @@ module.exports = function(app,config) {
 			}
 			parts.push(">");
 			parts.push(content);
-			parts.push("</div>");
+			parts.push("</"+tag+">");
 			return parts.join("");
 		}
 	}
@@ -367,6 +387,12 @@ module.exports = function(app,config) {
 			ads.removeGroup(req.body.type,req.body.ids,function(err) {
 				cb(err,{});				
 			});
+		});		
+	});
+
+	app.post(adminApiPath + '/make-id', function(req, res) {
+		AdminApiCall(req,res,function(req,cb) {
+			cb(null,ads.makeId());
 		});		
 	});
 

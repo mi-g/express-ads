@@ -259,6 +259,10 @@ module.exports = function(config) {
 			var banner = ads.banner[bid];
 			if(!banner.type)
 				banner.type='image';
+			if(banner.type=='image' && !banner.images)
+				banner.images = {};
+			if(banner.type=='text' && !banner.texts)
+				banner.texts = {};
 		}
 		for(var iid in ads.inventory) {
 			var inventory = ads.inventory[iid];
@@ -587,6 +591,7 @@ module.exports = function(config) {
 	
 		var ad = {
 			inventory: inventory,
+			type: inventory.size=='text'?'text':'image',
 		};
 		
 		var sessHist = options.sessHist; 
@@ -607,12 +612,22 @@ module.exports = function(config) {
 		var banners0 = inventory2banner[inventory.id];
 		for(var bid in banners0) {
 			var banner = ads.banner[bid];
-			var imgCount = 0;
-			for(var imid in banner.images)
-				if(banner.images[imid].size==inventory.size)
-					imgCount++
-			if(imgCount==0)
-				continue;
+			if(banner.type=='text' && inventory.size=='text') {
+				var txtCount = 0;
+				for(var teid in banner.texts)
+					txtCount++;
+				if(txtCount==0)
+					continue;
+			} else if(banner.type=='text' || inventory.size=='text')
+				continue
+			else {
+				var imgCount = 0;
+				for(var imid in banner.images)
+					if(banner.images[imid].size==inventory.size)
+						imgCount++
+				if(imgCount==0)
+					continue;
+			}
 			if(banner.link.trim().length==0)
 				continue;
 			if(!banner.active)
@@ -730,7 +745,7 @@ module.exports = function(config) {
 			weightedCampaigns.forEach(function(campCont) {
 				if(pickedCampaign)
 					return;
-				if(weightCount+campCont.weight>rnd) {
+				if(weightCount+campCont.weight>=rnd) {
 					pickedCampaign = campCont.campaign;
 					return;
 				}
@@ -753,40 +768,49 @@ module.exports = function(config) {
 				banners2.push(bid);					
 		});
 		var banner = ads.banner[banners2[Math.floor(Math.random()*banners2.length)]];
-		var imageArr = [];
-		for(var imid in banner.images) {
-			var img = banner.images[imid];
-			if(img.size==inventory.size)
-				imageArr.push(imid);
+		var contentArr = [];
+		if(inventory.size=='text') {
+			for(var teid in banner.texts)
+				contentArr.push(teid);
+		} else {
+			for(var imid in banner.images) {
+				var img = banner.images[imid];
+				if(img.size==inventory.size)
+					contentArr.push(imid);
+			}
 		}
 		if(sessHist) {
-			var imageArr1 = [];
+			var contentArr1 = [];
 			var min = Infinity;
-			imageArr.forEach(function(imid) {
-				var seenCount = sessHist.i[imid] || 0;
+			contentArr.forEach(function(coid) {
+				var seenCount = sessHist.i[coid] || 0;
 				if(seenCount<min) {
 					min = seenCount;
-					imageArr1 = [imid];
+					contentArr1 = [coid];
 				} else if(seenCount==min)
-					imageArr1.push(imid);
+					contentArr1.push(coid);
 			});
-			imageArr = imageArr1;
+			contentArr = contentArr1;
 		}
-		var image = banner.images[imageArr[Math.floor(Math.random()*imageArr.length)]];
+		var content;
+		if(inventory.size=='text') 
+			content = banner.texts[contentArr[Math.floor(Math.random()*contentArr.length)]];
+		else
+			content = banner.images[contentArr[Math.floor(Math.random()*contentArr.length)]];
 		ad.campaign = campaign;
 		ad.banner = banner;
-		ad.image = image;
+		ad.content = content;
 		if(sessHist) {
 			sessHist.c[campaign.id] = (sessHist.c[campaign.id] || 0) + 1; 
 			sessHist.b[banner.id] = (sessHist.b[banner.id] || 0) + 1; 
-			sessHist.i[image.id] = (sessHist.i[image.id] || 0) + 1; 
+			sessHist.i[content.id] = (sessHist.i[content.id] || 0) + 1; 
 		}
 		pageHist.c[campaign.id] = (pageHist.c[campaign.id] || 0) + 1; 
 		pageHist.b[banner.id] = (pageHist.b[banner.id] || 0) + 1; 
-		pageHist.i[image.id] = (pageHist.i[image.id] || 0) + 1; 
+		pageHist.i[content.id] = (pageHist.i[content.id] || 0) + 1; 
 		IncrStats('impr','cam',campaign.id);
 		IncrStats('impr','ban',banner.id);
-		IncrStats('impr','ima',image.id);
+		IncrStats('impr','ima',content.id);
 		AddRoll(inventory.id,campaign.id);
 		return ad;
 	}
@@ -800,6 +824,10 @@ module.exports = function(config) {
 		if(banner)
 			return banner.link.trim();
 		return null;
+	}
+	
+	exports.makeId = function() {
+		return MakeShortId();
 	}
 	
 	return exports;

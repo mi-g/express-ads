@@ -321,7 +321,7 @@
 					        </div>
 					    </div>
 					    
-					    <div class="form-group">
+					    <div class="form-group" ng-show="context.banner.type=='image'">
 					        <label for="ban-alt" class="col-sm-2 control-label">Alt</label>
 					        <div class="col-sm-10">
 					            <input type="text" class="form-control" id="ban-alt"  ng-model="context.banner.alt"  placeholder="Alt text for the banner">
@@ -390,7 +390,62 @@
 					        </div>
 					    </div>
 
-					    <div class="form-group" ng-show="context.banner.id" ng-show="context.banner.type=='image'">
+					    <div class="form-group" ng-show="context.banner.type=='text'">
+					        <label class="col-sm-2 control-label">Texts</label>
+					        <div class="col-sm-3" ng-show="bannerTextsCount()==0 && context.bannerText===null">
+					        	<div>No texts for this banner</div>
+					        </div>
+					        <div class="col-sm-2" ng-show="context.bannerText===null">
+					        	<a ng-click="newBannerText()">New text</a>
+					        </div>
+					        <div class="col-sm-8" ng-show="context.bannerText!==null">
+					            <textarea class="form-control" rows="2" ng-model="context.bannerText"></textarea>
+					        </div>
+		                    <div class="col-sm-2 pull-right text-right"  ng-show="context.bannerText!==null">
+		                    	<button class="btn btn-default" ng-click="addBannerText()" title="Set text" 
+		                    		ng-show="context.bannerText.trim().length>0">
+		                    		<span class="fa fa-plus"></span></button>
+		                    	<button class="btn btn-default" ng-click="context.bannerText=null" title="Cancel">
+		                    		<span class="fa fa-ban"></span></button>
+		                    </div>
+					        
+					    </div>
+					    <div class="form-group" ng-show="context.banner.type=='text' && bannerTextsCount()>0">
+					        <label class="col-sm-2 control-label"></label>
+					        <div class="col-sm-10">
+					        	<div id="ban-texts">
+					        		<table class="table table-striped table-hover">
+					        			<thead>
+					   						<tr>
+					   							<th></th>
+					   							<th>Id</th>
+					   							<th>Text</th>
+					   							<th>Total</th>
+					   							<th>Week</th>
+					   							<th>Day</th>
+					   							<th>Hour</th>
+					   						</tr>
+					   					</thead>
+					   					<tbody>
+						        			<tr ng-repeat="(teid,txt) in context.banner.texts" 
+						        				ng-click="selectBannerText(txt)"
+						        				vdh-tooltip="bannerTextTooltip(txt)">
+					   							<td><a ng-click="$event.stopPropagation();removeBannerText(txt)"><span class="fa fa-trash"></span></a></td>
+						        				<td>{{txt.id}}</td>
+						        				<td>{{txt.text}}</td>
+					   							<td>{{totalStats('ima',txt.id)}}</td>
+					   							<td>{{instantStats('ima',txt.id,'week')}}</td>
+					   							<td>{{instantStats('ima',txt.id,'day')}}</td>
+					   							<td>{{instantStats('ima',txt.id,'hour')}}</td>
+						        			</tr>
+					        			</tbody>
+					        		</table>
+					        	</div>
+					        	
+					        </div>
+					    </div>
+
+					    <div class="form-group" ng-show="context.banner.type=='image'">
 					        <label for="ban-image" class="col-sm-2 control-label">Add image</label>
 					        <div class="col-sm-6" ng-class="{warning:context.addImageError}">
 
@@ -613,21 +668,21 @@
 					    
 		                <div class="form-group">
 		                    <label for="inv-size" class="col-sm-2 control-label">Size</label>
-		                    <div class="col-sm-10">
-	   							<span ng-show="context.inventory.id">{{context.inventory.size}}</span>
+		                    <div class="col-sm-3">
+	   							<span ng-show="context.inventory.id">{{sizeLabel(context.inventory.size)}}</span>
 								<select id="inv-size" class="form-control" ng-show="!context.inventory.id" 
 									ng-options="m.value as m.label for m in sizes" ng-model="context.inventory.size">
+		                        </select>
+		                    </div>
+		                    <label for="inv-nobanner" class="col-sm-2 control-label" ng-show="context.inventory.size!='text'">No banner</label>
+		                    <div class="col-sm-5" ng-show="context.inventory.size!='text'">
+								<select id="inv-nobanner" class="form-control" 
+									ng-options="m.value as m.label for m in nobanners" ng-model="context.inventory.nobanner">
 		                        </select>
 		                    </div>
 		                </div>
 
 		                <div class="form-group">
-		                    <label for="inv-nobanner" class="col-sm-2 control-label">No banner</label>
-		                    <div class="col-sm-10">
-								<select id="inv-nobanner" class="form-control" 
-									ng-options="m.value as m.label for m in nobanners" ng-model="context.inventory.nobanner">
-		                        </select>
-		                    </div>
 		                </div>
 
 		                <div class="form-group">
@@ -774,7 +829,7 @@
 	   								title="{{inv.active?'Active':'Paused'}}"></span> </td>
 	   							<td>{{ inv.hid }}</td>
 	   							<td>{{ inv.id }}</td>
-	   							<td>{{ inv.size }}</td>
+	   							<td>{{ sizeLabel(inv.size) }}</td>
 	   							<td>{{totalStats('inv',inv.id)}}</td>
 	   							<td>{{instantStats('inv',inv.id,'week')}}</td>
 	   							<td>{{instantStats('inv',inv.id,'day')}}</td>

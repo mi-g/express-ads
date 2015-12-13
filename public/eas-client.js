@@ -28,6 +28,8 @@ angular.module('EASApp').controller('EASCtrl',
 			invStyleValue: null,
 			creatingBanner: false,
 			bannerType: "image",
+			bannerText: null,
+			bannerTextId: null,
 		}
 		$scope.campaignUsage = {};
 		$scope.bannerUsage = {};
@@ -60,6 +62,7 @@ angular.module('EASApp').controller('EASCtrl',
 		    {value: "120x600", label: "120x600" },
 		    {value: "160x600", label: "160x600" },
 		    {value: "160x300", label: "160x300" },
+		    {value: "text", label: "Text" },
 		];
 		$scope.campTypes = [
 		    {value: "background", label: "Background", vLabel: "Weight" },
@@ -76,7 +79,7 @@ angular.module('EASApp').controller('EASCtrl',
 		    {value: "imprperweek", label: "Imprs per week", vLabel: "Imprs per week" },
 		    {value: "imprpermonth", label: "Imprs per month", vLabel: "Imprs per month" },
 		];
-		$scope.bannerTypes = [{value:'image',label:'Images'}];
+		$scope.bannerTypes = [{value:'image',label:'Images'},{value:'text',label:'Texts'}];
 		$scope.nobanners = [{value:'hide',label:"Hide area"},{value:'blank',label:"Blank area"}];
 		$scope.startTypes = [
 		    {value: "now", label: "Starts now" },
@@ -223,6 +226,13 @@ angular.module('EASApp').controller('EASCtrl',
 			for(var i=0;i<$scope.campTypes.length;i++)
 				if($scope.campTypes[i].value==type)
 					return $scope.campTypes[i].label;
+			return "";
+		}
+
+		$scope.sizeLabel = function(size) {
+			for(var s in $scope.sizes)
+				if($scope.sizes[s].value==size)
+					return $scope.sizes[s].label;
 			return "";
 		}
 		
@@ -591,6 +601,29 @@ angular.module('EASApp').controller('EASCtrl',
 				}
 			});
 		}
+
+		$scope.newBannerText = function() {
+			Call('/make-id',{},function(err,data) {
+				if(!err) {
+					$scope.context.bannerTextId = data;
+					$scope.context.bannerText = '';
+				}
+			});
+		}
+		
+		$scope.selectBannerText = function(txt) {
+			$scope.context.bannerTextId = txt.id;
+			$scope.context.bannerText = txt.text;
+		}
+		
+		$scope.addBannerText = function() {
+			$scope.context.banner.texts[$scope.context.bannerTextId] = {
+				id: $scope.context.bannerTextId,
+				text: $scope.context.bannerText,
+			}
+			$scope.context.bannerText = null;
+			$scope.context.bannerTextId = null;
+		}
 		
 		$scope.addBannerImageUrl = function() {
 			var imageUrl = ($scope.context.addImageUrl || "").trim();
@@ -612,15 +645,33 @@ angular.module('EASApp').controller('EASCtrl',
 				delete $scope.context.banner.images[img.id];
 		}
 		
-		$scope.bannerImagesCount = function() {
+		$scope.removeBannerText = function(txt) {
+			if(confirm("Are you sure you want to remove this text ?")) {
+				delete $scope.context.banner.texts[txt.id];
+				if(txt.id==$scope.context.bannerTextId) {
+					$scope.context.bannerText = null;
+					$scope.context.bannerTextId = null;					
+				}
+			}
+		}
+		
+		$scope.bannerContentCount = function(type) {
 			if(!$scope.context.banner)
 				return 0;
-			if(!$scope.context.banner.images)
+			if(!$scope.context.banner[type])
 				return 0;
 			var count=0;
-			for(var img in $scope.context.banner.images)
+			for(var cont in $scope.context.banner[type])
 				count++;
 			return count;
+		}
+		
+		$scope.bannerImagesCount = function() {
+			return $scope.bannerContentCount('images');
+		}
+		
+		$scope.bannerTextsCount = function() {
+			return $scope.bannerContentCount('texts');
 		}
 		
 		$scope.bannersArray = function() {
