@@ -1015,7 +1015,8 @@ angular.module('EASApp').controller('EASCtrl',
 				var inventory = [];
 				for(var iid in usage.inventory) {
 					var str = $scope.data.ads.inventory[iid].hid;
-					str += " ("+($scope.campaignUsage[cam.id].inventoryUsagePercent[iid] || 0)+"%)";
+					if($scope.campaignUsage[cam.id].inventoryUsagePercent)
+						str +=  " ("+($scope.campaignUsage[cam.id].inventoryUsagePercent[iid] || 0)+"%)";
 					inventory.push(str);
 				}
 				tooltip += inventory.join(", ");
