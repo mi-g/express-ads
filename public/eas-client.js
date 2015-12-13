@@ -537,6 +537,10 @@ angular.module('EASApp').controller('EASCtrl',
 				osType: "any",
 				oss: [],
 			}
+			if($scope.context.bannerType=='image')
+				$scope.context.banner.images = {}
+			else
+				$scope.context.banner.texts = {}
 			Call('/set-banner',{banner: $scope.context.banner},function(err,data) {
 				$scope.context.creatingBanner = false;
 				if(data.banner)
