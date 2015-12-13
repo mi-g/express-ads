@@ -308,7 +308,7 @@ module.exports = function(app,config) {
 	app.post(adminApiPath + '/set-banner', function(req, res) {
 		AdminApiCall(req,res,function(req,cb) {
 			cb(null,{
-				campaign: ads.setBanner(req.body.banner),
+				banner: ads.setBanner(req.body.banner),
 			});
 		});		
 	});
