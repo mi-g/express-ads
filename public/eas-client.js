@@ -26,6 +26,8 @@ angular.module('EASApp').controller('EASCtrl',
 			selToggle: true,
 			invStyleProp: null,
 			invStyleValue: null,
+			creatingBanner: false,
+			bannerType: "image",
 		}
 		$scope.campaignUsage = {};
 		$scope.bannerUsage = {};
@@ -506,11 +508,11 @@ angular.module('EASApp').controller('EASCtrl',
 		}
 		
 		/* banner */
-		$scope.newBanner = function() {
+		$scope.createBanner = function() {
 			$scope.context.banner = {
 				hid: "",
 				active: true,
-				type: "image",
+				type: $scope.context.bannerType,
 				link: "",
 				alt: "",
 				cap: 0,
@@ -525,6 +527,15 @@ angular.module('EASApp').controller('EASCtrl',
 				osType: "any",
 				oss: [],
 			}
+			Call('/set-banner',{banner: $scope.context.banner},function(err,data) {
+				$scope.context.creatingBanner = false;
+				if(data.banner)
+					$scope.context.banner = data.banner;
+				$scope.getAds();
+			});
+		}
+		$scope.newBanner = function() {
+			$scope.context.creatingBanner = true;			
 		}
 
 		$scope.cancelBanner = function() {

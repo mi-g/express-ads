@@ -30,9 +30,9 @@
    					<div class="eas-tb">
 						<div class="btn-group">
 							<a ng-click="cancelCampaign()" class="btn btn-default">
-								<span class="fa fa-ban"> Cancel</span></a></li>
+								<span class="fa fa-ban"> Cancel</span></a>
 							<a ng-click="removeCampaign(context.campaign)" class="btn btn-default">
-								<span class="fa fa-trash"> Remove</span></a></li>
+								<span class="fa fa-trash"> Remove</span></a>
 							<a ng-show="!context.campaign.id" ng-click="saveCampaign()" class="btn btn-primary">
 								<span class="fa fa-plus"> Add</span></a>
 							<a ng-show="context.campaign.id && changedCampaign()" ng-click="saveCampaign()" class="btn btn-primary">
@@ -243,13 +243,33 @@
    				</div>
    			</div>
 
-   			<div role="tabpanel" class="tab-pane" ng-class="{active:local.tab=='banner'}">   				
+   			<div role="tabpanel" class="tab-pane" ng-class="{active:local.tab=='banner'}">
+   			
+   				<div ng-show="context.creatingBanner">
+   					<div class="eas-tb">
+						<div class="btn-group">
+	 						<a ng-click="context.creatingBanner=false" class="btn btn-default"><span class="fa fa-ban"> Cancel</span></a>
+	 						<a ng-click="createBanner()" class="btn btn-primary"><span class="fa fa-plus"> Create</span></a>
+	 					</div>
+	 				</div>
+					<form class="form-horizontal" role="form">
+					    <div class="form-group">
+		                    <label for="ban-type" class="col-sm-2 control-label">Banner type</label>
+		                    <div class="col-sm-3">
+								<select id="ban-type" class="form-control" 
+									ng-options="m.value as m.label for m in bannerTypes" ng-model="context.bannerType">
+		                        </select>
+		                    </div>
+		                </div>
+					</form>
+   				</div>
+   							
    				<div ng-show="context.banner">
    					<div class="eas-tb">
 						<div class="btn-group">
 	 						<a ng-click="cancelBanner()" class="btn btn-default"><span class="fa fa-ban"> Cancel</span></a>
 							<a ng-click="removeBanner(context.banner)" class="btn btn-default">
-								<span class="fa fa-trash"> Remove</span></a></li>
+								<span class="fa fa-trash"> Remove</span></a>
 	 						<a ng-show="!context.banner.id" ng-click="saveBanner()" class="btn btn-primary"><span class="fa fa-plus"> Add</span></a>
 	 						<a ng-show="context.banner.id && changedBanner()" ng-click="saveBanner()" class="btn btn-primary"><span class="fa fa-plus"> Update</span></a>
 	 					</div>
@@ -525,7 +545,6 @@
 	   							<th><span class="fa fa-check" ng-click="selectionToggle()"></span></th>
 	   							<th></th>
 	   							<th>Name</th>
-	   							<th>Status</th>
 	   							<th>Id</th>
 	   							<th>Total</th>
 	   							<th>Week</th>
@@ -560,7 +579,7 @@
 						<div class="btn-group">
 	 						<a ng-click="cancelInventory()" class="btn btn-default"><span class="fa fa-ban"> Cancel</span></a>
 							<a ng-click="removeInventory(context.inventory)" class="btn btn-default">
-								<span class="fa fa-trash"> Remove</span></a></li>
+								<span class="fa fa-trash"> Remove</span></a>
 	 						<a ng-show="!context.inventory.id" ng-click="saveInventory()" class="btn btn-primary"><span class="fa fa-plus"> Add</span></a>
 	 						<a ng-show="context.inventory.id && changedInventory()" ng-click="saveInventory()" class="btn btn-primary"><span class="fa fa-plus"> Update</span></a>
 	 					</div>
