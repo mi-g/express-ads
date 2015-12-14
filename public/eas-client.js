@@ -1146,6 +1146,96 @@ angular.module('EASApp').controller('EASCtrl',
 			window.scroll(0,0);
 		}
 		
+		$scope.sorter = function(name,what) {
+			$scope.local.sorter = $scope.local.sorter || {};
+			$scope.local.sorter[name] = $scope.local.sorter[name] || {};
+			return function(item) {
+				var sorter = $scope.local.sorter[name];
+				var type = sorter.type || 'normal';
+				if(type=='normal') {
+					var field = sorter.field || 'hid';
+					return item[field] || 0;
+				} else if(type='stats') {
+					if(!$scope.data.stats || !$scope.data.stats[sorter.field])
+						return 0;
+					var total = $scope.data.stats[sorter.field][what];
+					if(!total)
+						return 0;
+					if(sorter.statsType==1) {
+						switch(sorter.index%3) {
+						case 0: return total.click[item.id] || 0;
+						case 1: return total.impr[item.id] || 0;
+						case 2: return total.impr[item.id] ? (total.click[item.id] || 0)/total.impr[item.id] : 0;
+						}
+					} else if(sorter.statsType==2) {
+						var duration = $scope.data.stats[sorter.field].duration;
+						var now = $scope.data.now;
+						var instant = total[item.id];
+						if(!instant)
+							return 0;
+						var currentDuration = now - instant.lastEnd;
+						var missingDuration = Math.max(0,duration - currentDuration);
+						var lastDuration = instant.lastEnd - instant.lastStart;
+						var imprs = instant.current.impr;
+						var clicks = instant.current.click;
+						if(lastDuration>0) {
+							imprs += Math.round(instant.last.impr * (missingDuration/lastDuration));
+							clicks += Math.round(instant.last.click * (missingDuration/lastDuration));
+						}
+						if(currentDuration>duration) {
+							imprs = 0;
+							clicks = 0;
+						}
+						switch(sorter.index%3) {
+						case 0: return clicks || 0;
+						case 1: return imprs || 0;
+						case 2: return imprs ? (imprs || 0)/imprs : 0;
+						}						
+					}
+				}
+			}
+		}
+		$scope.sorterDir = function(name) {
+			$scope.local.sorter = $scope.local.sorter || {};
+			$scope.local.sorter[name] = $scope.local.sorter[name] || {};
+			var sorter = $scope.local.sorter[name];
+			var type = sorter.type || 'normal';
+			if(type=='normal')
+				return !!sorter.direction;
+			else if(type=='stats')
+				return sorter.index<3;
+		}
+		
+		$scope.sorterField = function(name,field) {
+			$scope.local.sorter = $scope.local.sorter || {};
+			$scope.local.sorter[name] = $scope.local.sorter[name] || {};
+			var sorter = $scope.local.sorter[name];
+			sorter.type = 'normal';
+			if(sorter.field===field)
+				sorter.direction = !(sorter.direction);
+			else {
+				sorter.field = field;
+				sorter.direction = false;
+			}
+		}
+		
+		$scope.sorterStat = function(name,field,statsType) {
+			statsType = statsType || 1;
+			$scope.local.sorter = $scope.local.sorter || {};
+			$scope.local.sorter[name] = $scope.local.sorter[name] || {};
+			var sorter = $scope.local.sorter[name];
+			sorter.type = 'stats';
+			if(sorter.field===field) {
+				sorter.direction = !(sorter.direction);
+				sorter.index = ((sorter.index || 0) + 1) % 6;
+			} else {
+				delete sorter.direction;
+				sorter.statsType = statsType;
+				sorter.index = 0;
+				sorter.field = field;
+			}
+		}
+		
 		$scope.countries = [ // Taken from https://gist.github.com/unceus/6501985
              {name: 'Afghanistan', code: 'AF'},
              {name: 'Aland Islands', code: 'AX'},
@@ -1424,6 +1514,58 @@ angular.module('EASApp').directive('vdhTooltip',
 			    	$(element[0]).tooltip('destroy');
 		    	});
 		    },
+		}
+	}]);
+
+angular.module('EASApp').directive('easSort', 
+		[ 
+		  function factory() {
+		return {
+            template:
+            	"<div class='pull-right'>"+
+             	"    <span class='eas-sort-stats fa'></span>"+
+             	"    <span class='eas-sort-dir fa'></span>"+
+             	"</div>",
+            replace: true,
+            scope: true,
+            link: function (scope, elem, attrs) {
+            	var sorter = scope.$eval(elem.attr("eas-sort"));
+            	var sorterName = sorter[0];
+            	var sorterField = sorter[1];
+                var statsSpan = $(elem[0].querySelector(".eas-sort-stats"));
+                var dirSpan = $(elem[0].querySelector(".eas-sort-dir"));
+                var element = $(elem[0]);
+            	scope.$watch('local.sorter["'+sorterName+'"]',function(sorter) {
+            		if(sorter && sorter.field===sorterField) {
+            			element.show();
+            			dirSpan.show();
+            			if(sorter.type=='normal') {
+            				statsSpan.hide();
+            				dirSpan.removeClass('fa-caret-up fa-caret-down');
+            				if(sorter.direction)
+            					dirSpan.addClass('fa-caret-down');
+            				else
+            					dirSpan.addClass('fa-caret-up');
+            			} else if(sorter.type=='stats') {
+            				statsSpan.show();
+            				statsSpan.removeClass('fa-eye fa-bolt fa-bar-chart-o')
+            				switch(sorter.index%3) {
+            				case 0: statsSpan.addClass('fa-bolt'); break;
+            				case 1: statsSpan.addClass('fa-eye'); break;
+            				case 2: statsSpan.addClass('fa-bar-chart-o'); break;
+            				}
+            				dirSpan.removeClass('fa-caret-up fa-caret-down');
+            				if(sorter.index<3)
+            					dirSpan.addClass('fa-caret-down');
+            				else
+            					dirSpan.addClass('fa-caret-up');
+            				
+            			}
+            			
+            		} else
+            			element.hide();
+            	},true);
+            }
 		}
 	}]);
 

@@ -211,18 +211,18 @@
 	   						<tr>
 	   							<th><span class="fa fa-check" ng-click="selectionToggle()"></span></th>
 	   							<th></th>
-	   							<th>Name</th>
-	   							<th>Id</th>
+	   							<th><div ng-click="sorterField('campaigns','hid')">Name<div eas-sort="['campaigns','hid']"/></div></th>
+	   							<th><div ng-click="sorterField('campaigns','id')">Id<div eas-sort="['campaigns','id']"/></div></th>
 	   							<th>Type</th>
 	   							<th>Remains</th>
-	   							<th>Total</th>
-	   							<th>Week</th>
-	   							<th>Day</th>
-	   							<th>Hour</th>
+	   							<th><div ng-click="sorterStat('campaigns','total')">Total<div eas-sort="['campaigns','total']"/></div></th>
+	   							<th><div ng-click="sorterStat('campaigns','week',2)">Week<div eas-sort="['campaigns','week']"/></div></th>
+	   							<th><div ng-click="sorterStat('campaigns','day',2)">Day<div eas-sort="['campaigns','day']"/></div></th>
+	   							<th><div ng-click="sorterStat('campaigns','hour',2)">Hour<div eas-sort="['campaigns','hour']"/></div></th>
 	   						</tr>
 	   					</thead>
 	   					<tbody>
-	   						<tr ng-repeat="camp in data.ads.campaign | toArray | filter:filterCampaign" 
+	   						<tr ng-repeat="camp in data.ads.campaign | toArray | filter:filterCampaign | orderBy:sorter('campaigns','cam'):sorterDir('campaigns')" 
 	   							vdh-tooltip="campaignTooltip(camp)" 
 	   							ng-click="selectCampaign(camp)">
 	   							<td>
@@ -362,17 +362,17 @@
 					        			<thead>
 					   						<tr>
 					   							<th></th>
-					   							<th>Id</th>
-					   							<th>Type</th>
-					   							<th>Size</th>
-					   							<th>Total</th>
-					   							<th>Week</th>
-					   							<th>Day</th>
-					   							<th>Hour</th>
+					   							<th><div ng-click="sorterField('banimages','id')">Id<div eas-sort="['banimages','id']"/></div></th>
+					   							<th><div ng-click="sorterField('banimages','url')">Type<div eas-sort="['banimages','url']"/></div></th>
+					   							<th><div ng-click="sorterField('banimages','size')">Size<div eas-sort="['banimages','size']"/></div></th>
+					   							<th><div ng-click="sorterStat('banimages','total')">Total<div eas-sort="['banimages','total']"/></div></th>
+					   							<th><div ng-click="sorterStat('banimages','week',2)">Week<div eas-sort="['banimages','week']"/></div></th>
+					   							<th><div ng-click="sorterStat('banimages','day',2)">Day<div eas-sort="['banimages','day']"/></div></th>
+					   							<th><div ng-click="sorterStat('banimages','hour',2)">Hour<div eas-sort="['banimages','hour']"/></div></th>
 					   						</tr>
 					   					</thead>
 					   					<tbody>
-						        			<tr ng-repeat="img in context.banner.images" 
+						        			<tr ng-repeat="img in context.banner.images | toArray | orderBy:sorter('banimages','ima'):sorterDir('banimages')" 
 						        				vdh-tooltip="bannerImageTooltip(img)">
 					   							<td><a ng-click="$event.stopPropagation();removeBannerImage(img)"><span class="fa fa-trash"></span></a></td>
 						        				<td>{{img.id}}</td>
@@ -418,16 +418,16 @@
 					        			<thead>
 					   						<tr>
 					   							<th></th>
-					   							<th>Id</th>
-					   							<th>Text</th>
-					   							<th>Total</th>
-					   							<th>Week</th>
-					   							<th>Day</th>
-					   							<th>Hour</th>
+					   							<th><div ng-click="sorterField('bantexts','id')">Id<div eas-sort="['bantexts','id']"/></div></th>
+					   							<th><div ng-click="sorterField('bantexts','text')">Text<div eas-sort="['bantexts','text']"/></div></th>
+					   							<th><div ng-click="sorterStat('bantexts','total')">Total<div eas-sort="['bantexts','total']"/></div></th>
+					   							<th><div ng-click="sorterStat('bantexts','week',2)">Week<div eas-sort="['bantexts','week']"/></div></th>
+					   							<th><div ng-click="sorterStat('bantexts','day',2)">Day<div eas-sort="['bantexts','day']"/></div></th>
+					   							<th><div ng-click="sorterStat('bantexts','hour',2)">Hour<div eas-sort="['bantexts','hour']"/></div></th>
 					   						</tr>
 					   					</thead>
 					   					<tbody>
-						        			<tr ng-repeat="(teid,txt) in context.banner.texts" 
+						        			<tr ng-repeat="(teid,txt) in context.banner.texts | toArray  | orderBy:sorter('bantexts','ima'):sorterDir('bantexts')" 
 						        				ng-click="selectBannerText(txt)"
 						        				vdh-tooltip="bannerTextTooltip(txt)">
 					   							<td><a ng-click="$event.stopPropagation();removeBannerText(txt)"><span class="fa fa-trash"></span></a></td>
@@ -599,16 +599,16 @@
 	   						<tr>
 	   							<th><span class="fa fa-check" ng-click="selectionToggle()"></span></th>
 	   							<th></th>
-	   							<th>Name</th>
-	   							<th>Id</th>
-	   							<th>Total</th>
-	   							<th>Week</th>
-	   							<th>Day</th>
-	   							<th>Hour</th>
+	   							<th><div ng-click="sorterField('banners','hid')">Name<div eas-sort="['banners','hid']"/></div></th>
+	   							<th><div ng-click="sorterField('banners','id')">Id<div eas-sort="['banners','id']"/></div></th>
+	   							<th><div ng-click="sorterStat('banners','total')">Total<div eas-sort="['banners','total']"/></div></th>
+	   							<th><div ng-click="sorterStat('banners','week',2)">Week<div eas-sort="['banners','week']"/></div></th>
+	   							<th><div ng-click="sorterStat('banners','day',2)">Day<div eas-sort="['banners','day']"/></div></th>
+	   							<th><div ng-click="sorterStat('banners','hour',2)">Hour<div eas-sort="['banners','hour']"/></div></th>
 	   						</tr>
 	   					</thead>
 	   					<tbody>
-	   						<tr ng-repeat="ban in data.ads.banner | toArray | filter:filterBanner" 
+	   						<tr ng-repeat="ban in data.ads.banner | toArray | filter:filterBanner | orderBy:sorter('banners','ban'):sorterDir('banners')" 
 	   							vdh-tooltip="bannerTooltip(ban)" 
 	   							ng-click="selectBanner(ban)">
 	   							<td>
@@ -809,17 +809,17 @@
 	   						<tr>
 	   							<th><span class="fa fa-check" ng-click="selectionToggle()"></span></th>
 	   							<th></th>
-	   							<th>Name</th>
-	   							<th>Id</th>
-	   							<th>Size</th>
-	   							<th>Total</th>
-	   							<th>Week</th>
-	   							<th>Day</th>
-	   							<th>Hour</th>
+	   							<th><div ng-click="sorterField('inventory','hid')">Name<div eas-sort="['inventory','hid']"/></div></th>
+	   							<th><div ng-click="sorterField('inventory','id')">Id<div eas-sort="['inventory','id']"/></div></th>
+	   							<th><div ng-click="sorterField('inventory','size')">Size<div eas-sort="['inventory','size']"/></div></th>
+	   							<th><div ng-click="sorterStat('inventory','total')">Total<div eas-sort="['inventory','total']"/></div></th>
+	   							<th><div ng-click="sorterStat('inventory','week',2)">Week<div eas-sort="['inventory','week']"/></div></th>
+	   							<th><div ng-click="sorterStat('inventory','day',2)">Day<div eas-sort="['inventory','day']"/></div></th>
+	   							<th><div ng-click="sorterStat('inventory','hour',2)">Hour<div eas-sort="['inventory','hour']"/></div></th>
 	   						</tr>
 	   					</thead>
 	   					<tbody>
-	   						<tr ng-repeat="inv in data.ads.inventory | toArray | filter:filterInventory"
+	   						<tr ng-repeat="inv in data.ads.inventory | toArray | filter:filterInventory  | orderBy:sorter('inventory','inv'):sorterDir('inventory')"
 	   							vdh-tooltip="inventoryTooltip(inv)" 
 	   							ng-click="selectInventory(inv)">
 	   							<td>
