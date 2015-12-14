@@ -153,7 +153,7 @@
 	   								<li><a ng-click="activeSelected(false)"><span class="fa fa-pause"> &nbsp;Pause</span></a></li>
 	   								<li><a ng-click="removeSelected()"><span class="fa fa-trash"> &nbsp;Remove</span></a></li>
 								</ul>
-		 						<a ng-click="newCampaign()" class="btn btn-default"><span class="fa fa-plus"> New Campaign</span></a>
+		 						<a ng-show="!context.campaign" ng-click="newCampaign()" class="btn btn-default"><span class="fa fa-plus"> New Campaign</span></a>
 							</div>
 	 					</div>
 
@@ -552,7 +552,7 @@
 	   								<li><a ng-click="activeSelected(false)"><span class="fa fa-pause"> &nbsp;Pause</span></a></li>
 	   								<li><a ng-click="removeSelected()"><span class="fa fa-trash"> &nbsp;Remove</span></a></li>
 								</ul>
-		 						<a ng-click="newBanner()" class="btn btn-default"><span class="fa fa-plus"> New Banner</span></a>
+		 						<a ng-show="!context.banner" ng-click="newBanner()" class="btn btn-default"><span class="fa fa-plus"> New Banner</span></a>
 							</div>
 	 					</div>
 
@@ -771,7 +771,7 @@
 	   								<li><a ng-click="activeSelected(false)"><span class="fa fa-pause"> &nbsp;Pause</span></a></li>
 	   								<li><a ng-click="removeSelected()"><span class="fa fa-trash"> &nbsp;Remove</span></a></li>
 								</ul>
-								<button ng-click="newInventory()" class="btn btn-default"><span class="fa fa-plus"> New Inventory</span></button>
+								<button ng-show="!context.inventory" ng-click="newInventory()" class="btn btn-default"><span class="fa fa-plus"> New Inventory</span></button>
 							</div>
 						</div>
 
