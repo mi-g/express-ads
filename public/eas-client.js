@@ -36,12 +36,15 @@ angular.module('EASApp').controller('EASCtrl',
 		$scope.inventoryUsage = {};
 		$scope.local = {
 			filterInventoryActive: true,
+			filterInventoryUsed: false,
 			filterInventoryCampaign: null,
 			filterInventoryBanner: null,
 			filterCampaignActive: true,
+			filterCampaignUsed: false,
 			filterCampaignInventory: null,
 			filterCampaignBanner: null,
 			filterBannerActive: true,
+			filterBannerUsed: false,
 			filterBannerInventory: null,
 			filterBannerCampaign: null,
 			tab: "campaign",
@@ -496,6 +499,11 @@ angular.module('EASApp').controller('EASCtrl',
 		}
 
 		$scope.campaignStatus = function(campaign) {
+			if(!campaign.active)
+				return {
+				title: "Paused",
+				clazz: "fa-pause",
+			}
 			if(campaign.start && campaign.start>$scope.data.now) {
 				return {
 					title: "Waiting "+TimeToText(campaign.start-$scope.data.now),
@@ -507,16 +515,19 @@ angular.module('EASApp').controller('EASCtrl',
 					title: "Complete",
 					clazz: "fa-times",
 				}
-			if(campaign.active) 
-				return {
-					title: "Running",
-					clazz: "fa-play",
-				}
-			else
-				return {
-					title: "Paused",
-					clazz: "fa-pause",
-				}
+			if(campaign.active) {
+				var usage = $scope.campaignUsage[campaign.id]; 
+				if(usage.bannersCount==0 || usage.inventoryCount==0)
+					return {
+						title: "Unused",
+						clazz: "fa-play-circle-o",
+					}
+				else
+					return {
+						title: "Running ",
+						clazz: "fa-play",
+					}
+			}
 		}
 		
 		/* banner */
@@ -689,6 +700,27 @@ angular.module('EASApp').controller('EASCtrl',
 				arr.push($scope.data.ads.banner[id]);
 			return arr;
 		}
+		
+		$scope.bannerStatus = function(banner) {
+			if(!banner.active)
+				return {
+					title: "Paused",
+					clazz: "fa-pause",
+				}
+			else {
+				var usage = $scope.bannerUsage[banner.id]; 
+				if(usage.campaignsCount==0 || usage.inventoryCount==0)
+					return {
+						title: "Unused",
+						clazz: "fa-play-circle-o",
+					}
+				else
+					return {
+						title: "Running ",
+						clazz: "fa-play",
+					}
+			}
+		}
 				
 		$scope.inventoryArray = function() {
 			if(!$scope.data || !$scope.data.ads || !$scope.data.ads.inventory)
@@ -763,6 +795,8 @@ angular.module('EASApp').controller('EASCtrl',
 		$scope.filterCampaign = function(cam) {
 			if($scope.local.filterCampaignActive && !cam.active)
 				return false;
+			if($scope.local.filterCampaignUsed && ($scope.campaignUsage[cam.id].bannersCount==0 || $scope.campaignUsage[cam.id].inventoryCount==0))
+				return false;
 			if($scope.data.ads && $scope.data.ads.inventory[$scope.local.filterCampaignInventory] && 
 					!$scope.campaignUsage[cam.id].inventory[$scope.local.filterCampaignInventory])
 				return false;
@@ -807,9 +841,19 @@ angular.module('EASApp').controller('EASCtrl',
 						});
 					}
 				}
+				var inventoryCount = 0;
+				for(var iid in inventory)
+					if($scope.data.ads.inventory[iid].active)
+						inventoryCount++;
+				var bannersCount = 0;
+				for(var bid in banners)
+					if($scope.data.ads.banner[bid].active)
+						bannersCount++;
 				$scope.campaignUsage[camId] = {
 					banners: banners,
+					bannersCount: bannersCount,
 					inventory: inventory,
+					inventoryCount: inventoryCount,
 				}
 			}
 			
@@ -843,6 +887,8 @@ angular.module('EASApp').controller('EASCtrl',
 
 		$scope.filterBanner = function(ban) {
 			if($scope.local.filterBannerActive && !ban.active)
+				return false;
+			if($scope.local.filterBannerUsed && ($scope.bannerUsage[ban.id].campaignsCount==0 || $scope.bannerUsage[ban.id].inventoryCount==0))
 				return false;
 			if($scope.data.ads && $scope.data.ads.inventory[$scope.local.filterBannerInventory] && 
 					!$scope.bannerUsage[ban.id].inventory[$scope.local.filterBannerInventory])
@@ -886,9 +932,19 @@ angular.module('EASApp').controller('EASCtrl',
 							campaigns[cid] = 1;
 					}
 				}
+				var inventoryCount = 0;
+				for(var iid in inventory)
+					if($scope.data.ads.inventory[iid].active)
+						inventoryCount++;
+				var campaignsCount = 0;
+				for(var cid in campaigns)
+					if($scope.data.ads.campaign[cid].active)
+						campaignsCount++;
 				$scope.bannerUsage[banId] = {
 					campaigns: campaigns,
+					campaignsCount: campaignsCount,
 					inventory: inventory,
+					inventoryCount: inventoryCount,
 				}
 			}
 		}
@@ -899,6 +955,8 @@ angular.module('EASApp').controller('EASCtrl',
 
 		$scope.filterInventory = function(inv) {
 			if($scope.local.filterInventoryActive && !inv.active)
+				return false;
+			if($scope.local.filterInventoryUsed && ($scope.inventoryUsage[inv.id].campaignsCount==0 || $scope.inventoryUsage[inv.id].bannersCount==0))
 				return false;
 			if($scope.data.ads && $scope.data.ads.campaign[$scope.local.filterInventoryCampaign] && 
 					!$scope.inventoryUsage[inv.id].campaigns[$scope.local.filterInventoryCampaign])
@@ -989,9 +1047,19 @@ angular.module('EASApp').controller('EASCtrl',
 								campaigns[cid] = 1;
 					}
 				}
+				var bannersCount = 0;
+				for(var bid in banners)
+					if($scope.data.ads.banner[bid].active)
+						bannersCount++;
+				var campaignsCount = 0;
+				for(var cid in campaigns)
+					if($scope.data.ads.campaign[cid].active)
+						campaignsCount++;
 				$scope.inventoryUsage[invId] = {
 					banners: banners,
+					bannersCount: bannersCount,
 					campaigns: campaigns,
+					campaignsCount: campaignsCount,
 					roll: uroll,
 				};
 			}
@@ -1062,7 +1130,28 @@ angular.module('EASApp').controller('EASCtrl',
 			tooltip += '</div>';
 			return tooltip;
 		}
-		
+
+		$scope.inventoryStatus = function(inventory) {
+			if(!inventory.active)
+				return {
+					title: "Paused",
+					clazz: "fa-pause",
+				}
+			else {
+				var usage = $scope.inventoryUsage[inventory.id]; 
+				if(usage.campaignsCount==0 || usage.bannersCount==0)
+					return {
+						title: "Unused",
+						clazz: "fa-play-circle-o",
+					}
+				else
+					return {
+						title: "Running ",
+						clazz: "fa-play",
+					}
+			}
+		}
+
 		$scope.inventoryTooltip = function(inv) {
 			var tooltip = '<div style="width: 400px;text-align:left">';
 			var usage = $scope.inventoryUsage[inv.id];
@@ -1123,7 +1212,7 @@ angular.module('EASApp').controller('EASCtrl',
 				imprs = 0;
 				clicks = 0;
 			}
-			if(imprs==0 && click==0)
+			if(imprs==0 && clicks==0)
 				return "";
 			var str = clicks + "/" + imprs;
 			if(imprs)
