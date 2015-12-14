@@ -1327,6 +1327,14 @@ angular.module('EASApp').controller('EASCtrl',
 			}
 		}
 		
+		$scope.gotoItem = function(type,id) {
+			var item = $scope.data.ads[type][id];
+			if(item) {
+				$scope.local.tab = type;
+				$scope["select"+type[0].toUpperCase()+type.substring(1)](item);
+			}
+		} 
+		
 		$scope.countries = [ // Taken from https://gist.github.com/unceus/6501985
              {name: 'Afghanistan', code: 'AF'},
              {name: 'Aland Islands', code: 'AX'},

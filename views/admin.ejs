@@ -137,6 +137,29 @@
 					            <textarea class="form-control" rows="2" id="camp-description" ng-model="context.campaign.description"></textarea>
 					        </div>
 					    </div>
+
+					    <div class="form-group" ng-show="context.campaign.id && campaignUsage[context.campaign.id].bannersCount>0">
+					        <label class="col-sm-2 control-label">Using banners</label>
+					        <div class="col-sm-10">
+					        	<span ng-repeat="(bid,value) in campaignUsage[context.campaign.id].banners">
+					        		<a ng-click="gotoItem('banner',bid)">{{data.ads.banner[bid].hid}}</a>
+					        		<span ng-show="!$last">,</span>
+					        	</span>
+					        </div>
+					    </div>
+
+					    <div class="form-group" ng-show="context.campaign.id && campaignUsage[context.campaign.id].inventoryCount>0">
+					        <label class="col-sm-2 control-label">Using inventory</label>
+					        <div class="col-sm-10">
+					        	<span ng-repeat="(iid,value) in campaignUsage[context.campaign.id].inventory">
+					        		<a ng-click="gotoItem('inventory',iid)">{{data.ads.inventory[iid].hid}}</a>
+					        		<span ng-show="campaignUsage[context.campaign.id].inventoryUsagePercent[iid]">
+					        			({{campaignUsage[context.campaign.id].inventoryUsagePercent[iid]}}%)</span>
+					        		<span ng-show="!$last">,</span>
+					        	</span>
+					        </div>
+					    </div>
+
    					</form>
    					
    				</div>
@@ -535,6 +558,25 @@
 					        </div>
 					    </div>
 
+					    <div class="form-group" ng-show="context.banner.id && bannerUsage[context.banner.id].campaignsCount>0">
+					        <label class="col-sm-2 control-label">Used by campaign</label>
+					        <div class="col-sm-10">
+					        	<span ng-repeat="(cid,value) in bannerUsage[context.banner.id].campaigns">
+					        		<a ng-click="gotoItem('campaign',cid)">{{data.ads.campaign[cid].hid}}</a>
+					        		<span ng-show="!$last">,</span>
+					        	</span>
+					        </div>
+					    </div>
+
+					    <div class="form-group" ng-show="context.banner.id && bannerUsage[context.banner.id].inventoryCount>0">
+					        <label class="col-sm-2 control-label">Using inventory</label>
+					        <div class="col-sm-10">
+					        	<span ng-repeat="(iid,value) in bannerUsage[context.banner.id].inventory">
+					        		<a ng-click="gotoItem('inventory',iid)">{{data.ads.inventory[iid].hid}}</a>
+					        		<span ng-show="!$last">,</span>
+					        	</span>
+					        </div>
+					    </div>
 
    					</form>
    					
@@ -755,6 +797,29 @@
 					            <textarea class="form-control" rows="2" id="inv-description" ng-model="context.inventory.description"></textarea>
 					        </div>
 					    </div>
+
+					    <div class="form-group" ng-show="context.inventory.id && inventoryUsage[context.inventory.id].campaignsCount>0">
+					        <label class="col-sm-2 control-label">Used by campaigns</label>
+					        <div class="col-sm-10">
+					        	<span ng-repeat="(cid,value) in inventoryUsage[context.inventory.id].campaigns">
+					        		<a ng-click="gotoItem('campaign',cid)">{{data.ads.campaign[cid].hid}}</a>
+					        		<span ng-show="inventoryUsage[context.inventory.id].roll.campaignPercent[cid]">
+					        			({{inventoryUsage[context.inventory.id].roll.campaignPercent[cid]}}%)</span>
+					        		<span ng-show="!$last">,</span>
+					        	</span>
+					        </div>
+					    </div>
+
+					    <div class="form-group" ng-show="context.inventory.id && inventoryUsage[context.inventory.id].bannersCount>0">
+					        <label class="col-sm-2 control-label">Used by banners</label>
+					        <div class="col-sm-10">
+					        	<span ng-repeat="(bid,value) in inventoryUsage[context.inventory.id].banners">
+					        		<a ng-click="gotoItem('banner',bid)">{{data.ads.banner[bid].hid}}</a>
+					        		<span ng-show="!$last">,</span>
+					        	</span>
+					        </div>
+					    </div>
+
    					</form>
    					
    				</div>
