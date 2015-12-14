@@ -169,6 +169,7 @@
 					        			<th>Impressions</th>
 					        			<th>Clicks</th>
 					        			<th>CTR</th>
+					        			<th></th>
 					        		</thead>
 					        		<tbody>
 					        			<tr>
@@ -176,24 +177,28 @@
 					        				<td>{{instantStats('cam',context.campaign.id,'hour').imprs}}</td>
 					        				<td>{{instantStats('cam',context.campaign.id,'hour').clicks}}</td>
 					        				<td>{{instantStats('cam',context.campaign.id,'hour').ctr}}</td>
+					        				<td><a ng-click="clearStats('cam',context.campaign.id,'hour')"><span class="fa fa-eraser"></span></a></td>
 					        			</tr>
 					        			<tr>
 					        				<td><strong>Day</strong></td>
 					        				<td>{{instantStats('cam',context.campaign.id,'day').imprs}}</td>
 					        				<td>{{instantStats('cam',context.campaign.id,'day').clicks}}</td>
 					        				<td>{{instantStats('cam',context.campaign.id,'day').ctr}}</td>
+					        				<td><a ng-click="clearStats('cam',context.campaign.id,'day')"><span class="fa fa-eraser"></span></a></td>
 					        			</tr>
 					        			<tr>
 					        				<td><strong>Week</strong></td>
 					        				<td>{{instantStats('cam',context.campaign.id,'week').imprs}}</td>
 					        				<td>{{instantStats('cam',context.campaign.id,'week').clicks}}</td>
 					        				<td>{{instantStats('cam',context.campaign.id,'week').ctr}}</td>
+					        				<td><a ng-click="clearStats('cam',context.campaign.id,'week')"><span class="fa fa-eraser"></span></a></td>
 					        			</tr>
 					        			<tr>
 					        				<td><strong>Total</strong></td>
 					        				<td>{{totalStats('cam',context.campaign.id).imprs}}</td>
 					        				<td>{{totalStats('cam',context.campaign.id).clicks}}</td>
 					        				<td>{{totalStats('cam',context.campaign.id).ctr}}</td>
+					        				<td><a ng-click="clearStats('cam',context.campaign.id,'total')"><span class="fa fa-eraser"></span></a></td>
 					        			</tr>
 					        		</tbody>
 					        	</table>
@@ -627,6 +632,7 @@
 					        			<th>Impressions</th>
 					        			<th>Clicks</th>
 					        			<th>CTR</th>
+					        			<th></th>
 					        		</thead>
 					        		<tbody>
 					        			<tr>
@@ -634,24 +640,28 @@
 					        				<td>{{instantStats('ban',context.banner.id,'hour').imprs}}</td>
 					        				<td>{{instantStats('ban',context.banner.id,'hour').clicks}}</td>
 					        				<td>{{instantStats('ban',context.banner.id,'hour').ctr}}</td>
+					        				<td><a ng-click="clearStats('ban',context.banner.id,'hour')"><span class="fa fa-eraser"></span></a></td>
 					        			</tr>
 					        			<tr>
 					        				<td><strong>Day</strong></td>
 					        				<td>{{instantStats('ban',context.banner.id,'day').imprs}}</td>
 					        				<td>{{instantStats('ban',context.banner.id,'day').clicks}}</td>
 					        				<td>{{instantStats('ban',context.banner.id,'day').ctr}}</td>
+					        				<td><a ng-click="clearStats('ban',context.banner.id,'day')"><span class="fa fa-eraser"></span></a></td>
 					        			</tr>
 					        			<tr>
 					        				<td><strong>Week</strong></td>
 					        				<td>{{instantStats('ban',context.banner.id,'week').imprs}}</td>
 					        				<td>{{instantStats('ban',context.banner.id,'week').clicks}}</td>
 					        				<td>{{instantStats('ban',context.banner.id,'week').ctr}}</td>
+					        				<td><a ng-click="clearStats('ban',context.banner.id,'week')"><span class="fa fa-eraser"></span></a></td>
 					        			</tr>
 					        			<tr>
 					        				<td><strong>Total</strong></td>
 					        				<td>{{totalStats('ban',context.banner.id).imprs}}</td>
 					        				<td>{{totalStats('ban',context.banner.id).clicks}}</td>
 					        				<td>{{totalStats('ban',context.banner.id).ctr}}</td>
+					        				<td><a ng-click="clearStats('ban',context.banner.id,'total')"><span class="fa fa-eraser"></span></a></td>
 					        			</tr>
 					        		</tbody>
 					        	</table>
@@ -920,6 +930,7 @@
 					        			<th>Impressions</th>
 					        			<th>Clicks</th>
 					        			<th>CTR</th>
+					        			<th></th>
 					        		</thead>
 					        		<tbody>
 					        			<tr>
@@ -927,24 +938,28 @@
 					        				<td>{{instantStats('inv',context.inventory.id,'hour').imprs}}</td>
 					        				<td>{{instantStats('inv',context.inventory.id,'hour').clicks}}</td>
 					        				<td>{{instantStats('inv',context.inventory.id,'hour').ctr}}</td>
+					        				<td><a ng-click="clearStats('inv',context.inventory.id,'hour')"><span class="fa fa-eraser"></span></a></td>
 					        			</tr>
 					        			<tr>
 					        				<td><strong>Day</strong></td>
 					        				<td>{{instantStats('inv',context.inventory.id,'day').imprs}}</td>
 					        				<td>{{instantStats('inv',context.inventory.id,'day').clicks}}</td>
 					        				<td>{{instantStats('inv',context.inventory.id,'day').ctr}}</td>
+					        				<td><a ng-click="clearStats('inv',context.inventory.id,'day')"><span class="fa fa-eraser"></span></a></td>
 					        			</tr>
 					        			<tr>
 					        				<td><strong>Week</strong></td>
 					        				<td>{{instantStats('inv',context.inventory.id,'week').imprs}}</td>
 					        				<td>{{instantStats('inv',context.inventory.id,'week').clicks}}</td>
 					        				<td>{{instantStats('inv',context.inventory.id,'week').ctr}}</td>
+					        				<td><a ng-click="clearStats('inv',context.inventory.id,'week')"><span class="fa fa-eraser"></span></a></td>
 					        			</tr>
 					        			<tr>
 					        				<td><strong>Total</strong></td>
 					        				<td>{{totalStats('inv',context.inventory.id).imprs}}</td>
 					        				<td>{{totalStats('inv',context.inventory.id).clicks}}</td>
 					        				<td>{{totalStats('inv',context.inventory.id).ctr}}</td>
+					        				<td><a ng-click="clearStats('inv',context.inventory.id,'total')"><span class="fa fa-eraser"></span></a></td>
 					        			</tr>
 					        		</tbody>
 					        	</table>

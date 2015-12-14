@@ -782,8 +782,8 @@ angular.module('EASApp').controller('EASCtrl',
 		    return string.charAt(0).toUpperCase() + string.slice(1);
 		}
 
-		$scope.clearStats = function(type,id) {
-			Call('/clear-stats',{type: type, id: id},function(err,data) {
+		$scope.clearStats = function(type,id,which) {
+			Call('/clear-stats',{type: type, id: id, which:which},function(err,data) {
 				$scope.getAds();
 			});
 		}

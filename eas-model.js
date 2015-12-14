@@ -535,11 +535,21 @@ module.exports = function(config) {
 		}
 	}
 	
-	exports.clearStats = function(type,id,callback) {
-		if(stats.total[type] && stats.total[type].impr)
-			delete stats.total[type].impr[id];
-		if(stats.total[type] && stats.total[type].click)
-			delete stats.total[type].click[id];
+	exports.clearStats = function(type,id,which,callback) {
+		if(which=='total') {
+			if(stats.total[type] && stats.total[type].impr)
+				delete stats.total[type].impr[id];
+			if(stats.total[type] && stats.total[type].click)
+				delete stats.total[type].click[id];
+		} else {
+			if(stats[which] && stats[which][type])
+				stats[which][type][id] = {
+					last: { impr: 0, click: 0 },
+					lastStart: 0,
+					lastEnd: 0,
+					current: { impr: 0, click: 0 },					
+				}
+		}
 		Updated('stats');
 		callback(null,{});
 	}

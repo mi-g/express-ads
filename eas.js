@@ -369,7 +369,7 @@ module.exports = function(app,config) {
 
 	app.post(adminApiPath + '/clear-stats', function(req, res) {
 		AdminApiCall(req,res,function(req,cb) {
-			ads.clearStats(req.body.type,req.body.id,function(err) {
+			ads.clearStats(req.body.type,req.body.id,req.body.which,function(err) {
 				cb(err,{});				
 			});
 		});		
