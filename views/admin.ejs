@@ -798,6 +798,16 @@
 					        </div>
 					    </div>
 
+					    <div class="form-group" ng-show="context.inventory.id && inventoryUsage[context.inventory.id].roll.total>0">
+					        <label class="col-sm-2 control-label">Usage</label>
+					        <div class="col-sm-10">
+					        	{{ inventoryUsage[context.inventory.id].roll.perday }} impressions per day - 
+					        	Scheduled {{ inventoryUsage[context.inventory.id].roll.scheduledPercent }}% - 
+					        	Background {{ inventoryUsage[context.inventory.id].roll.backgroundPercent }}% -
+								Missed {{ (inventoryUsage[context.inventory.id].roll.missedBannerPercent || 0) + (inventoryUsage[context.inventory.id].roll.missedCampaignPercent || 0) }}%
+					        </div>
+					    </div>
+
 					    <div class="form-group" ng-show="context.inventory.id && inventoryUsage[context.inventory.id].campaignsCount>0">
 					        <label class="col-sm-2 control-label">Used by campaigns</label>
 					        <div class="col-sm-10">
