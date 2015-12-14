@@ -1192,13 +1192,13 @@ angular.module('EASApp').controller('EASCtrl',
 		}
 		
 		$scope.instantStats = function(what,id,period) {
-			if(!$scope.data.stats[period])
-				return "";
+			if(!$scope.data.stats || !$scope.data.stats[period])
+				return {string:""};
 			var duration = $scope.data.stats[period].duration;
 			var now = $scope.data.now;
 			var instant = $scope.data.stats[period][what][id];
 			if(!instant)
-				return "";
+				return {string:""};
 			var currentDuration = now - instant.lastEnd;
 			var missingDuration = Math.max(0,duration - currentDuration);
 			var lastDuration = instant.lastEnd - instant.lastStart;
@@ -1212,25 +1212,42 @@ angular.module('EASApp').controller('EASCtrl',
 				imprs = 0;
 				clicks = 0;
 			}
-			if(imprs==0 && clicks==0)
-				return "";
-			var str = clicks + "/" + imprs;
-			if(imprs)
-				str += " ("+Math.round(clicks*10000/imprs)/100+"%)";
-			return str;
+			var str = "";
+			var ctr = "";
+			if(imprs>0 || clicks>0) {
+				str = clicks + "/" + imprs;
+				if(imprs) {
+					ctr = (Math.round(clicks*10000/imprs)/100)+"%";
+					str += " ("+ctr+")";
+				}
+			}
+			return {
+				imprs: imprs,
+				clicks: clicks,
+				ctr: ctr,
+				string: str,
+			}
 		}
 		
 		$scope.totalStats = function(what,id) {
+			if(!$scope.data.stats || !$scope.data.stats.total)
+				return {string:""};
 			var totalStats = $scope.data.stats.total; 
-			if(!totalStats)
-				return "";
 			var total = totalStats[what];
 			var imprs = total.impr[id] || 0;
 			var clicks = total.click[id] || 0;
 			var str = clicks + "/" + imprs;
-			if(imprs)
-				str += " ("+Math.round(clicks*10000/imprs)/100+"%)";
-			return str;
+			var ctr = "";
+			if(imprs) {
+				ctr = Math.round(clicks*10000/imprs)/100+"%";
+				str += " ("+ctr+")";
+			}
+			return {
+				imprs: imprs,
+				clicks: clicks,
+				ctr: ctr,
+				string: str,
+			};
 		}
 		
 		function ScrollTop() {
