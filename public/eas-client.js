@@ -401,6 +401,7 @@ angular.module('EASApp').controller('EASCtrl',
 		
 		$scope.selectInventory = function(inv) {
 			$scope.context.inventory = angular.copy(inv);
+			ScrollTop();
 		}
 		
 		$scope.inventoryCount = function() {
@@ -482,6 +483,7 @@ angular.module('EASApp').controller('EASCtrl',
 			$scope.context.campaign = angular.copy(inv);
 			$scope.context.startType = $scope.context.campaign.start ? "date" : "now";  
 			$scope.context.endType = $scope.context.campaign.end ? "date" : "never";  
+			ScrollTop();
 		}
 		
 		$scope.campaignCount = function() {
@@ -580,6 +582,7 @@ angular.module('EASApp').controller('EASCtrl',
 		
 		$scope.selectBanner = function(ban) {
 			$scope.context.banner = angular.copy(ban);
+			ScrollTop();
 		}
 		
 		$scope.bannerCount = function() {
@@ -1137,6 +1140,10 @@ angular.module('EASApp').controller('EASCtrl',
 			if(imprs)
 				str += " ("+Math.round(clicks*10000/imprs)/100+"%)";
 			return str;
+		}
+		
+		function ScrollTop() {
+			window.scroll(0,0);
 		}
 		
 		$scope.countries = [ // Taken from https://gist.github.com/unceus/6501985
