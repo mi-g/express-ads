@@ -75,4 +75,4 @@ p
 # Limitations
 
 - Express Ads is not intended to support multiple users editing ads from the admin interface at the same time
-- In this early version, only plain images ads are supported
+- In this early version, only plain images and text ads are supported
