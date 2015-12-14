@@ -163,11 +163,12 @@ module.exports = function(app,config) {
 			var content;
 			if(ad.banner) {
 				styles=extend(styles,ad.inventory.styles,options.styles);
-				if(ad.type=='image')
-					content = "<img style='width:"+width+"px;height:"+height+"px' src='"+(ad.content.url ? ad.content.url : "/eas/images/"+ad.content.id+".png" )+"' alt='"
+				if(ad.type=='image') {
+					var imgHTML = "<img style='width:"+width+"px;height:"+height+"px' src='"+(ad.content.url ? ad.content.url : "/eas/images/"+ad.content.id+".png" )+"' alt='"
 					+encodeURIComponent(ad.banner.alt.trim())
 					+"'/></a>";
-				else {
+					content = MakeLink(imgHTML);
+				} else {
 					var replFound = false;
 					content = ad.content.text.replace(/\[\[.*?\]\]/g,function(ph) {
 						replFound = true;
