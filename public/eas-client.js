@@ -1260,6 +1260,8 @@ angular.module('EASApp').controller('EASCtrl',
 			var imprs = total.impr[id] || 0;
 			var clicks = total.click[id] || 0;
 			var str = clicks + "/" + imprs;
+			if(clicks==0 && imprs==0)
+				str = "";
 			var ctr = "";
 			if(imprs) {
 				ctr = Math.round(clicks*10000/imprs)/100+"%";
