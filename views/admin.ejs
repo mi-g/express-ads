@@ -447,6 +447,7 @@
 					   							<th><div ng-click="sorterStat('banimages','week',2)">Week<div eas-sort="['banimages','week']"/></div></th>
 					   							<th><div ng-click="sorterStat('banimages','day',2)">Day<div eas-sort="['banimages','day']"/></div></th>
 					   							<th><div ng-click="sorterStat('banimages','hour',2)">Hour<div eas-sort="['banimages','hour']"/></div></th>
+					   							<th></th>
 					   						</tr>
 					   					</thead>
 					   					<tbody>
@@ -460,6 +461,7 @@
 					   							<td>{{instantStats('ima',img.id,'week').string}}</td>
 					   							<td>{{instantStats('ima',img.id,'day').string}}</td>
 					   							<td>{{instantStats('ima',img.id,'hour').string}}</td>
+						        				<td><a ng-click="clearStats('ima',img.id,['hour','day','week','total'])"><span class="fa fa-eraser"></span></a></td>
 						        			</tr>
 					        			</tbody>
 					        		</table>
@@ -502,6 +504,7 @@
 					   							<th><div ng-click="sorterStat('bantexts','week',2)">Week<div eas-sort="['bantexts','week']"/></div></th>
 					   							<th><div ng-click="sorterStat('bantexts','day',2)">Day<div eas-sort="['bantexts','day']"/></div></th>
 					   							<th><div ng-click="sorterStat('bantexts','hour',2)">Hour<div eas-sort="['bantexts','hour']"/></div></th>
+					   							<th></th>
 					   						</tr>
 					   					</thead>
 					   					<tbody>
@@ -515,6 +518,7 @@
 					   							<td>{{instantStats('ima',txt.id,'week').string}}</td>
 					   							<td>{{instantStats('ima',txt.id,'day').string}}</td>
 					   							<td>{{instantStats('ima',txt.id,'hour').string}}</td>
+						        				<td><a ng-click="clearStats('ima',txt.id,['hour','day','week','total'])"><span class="fa fa-eraser"></span></a></td>
 						        			</tr>
 					        			</tbody>
 					        		</table>
