@@ -963,6 +963,14 @@ angular.module('EASApp').controller('EASCtrl',
 			return inv.active;
 		}
 
+		$scope.filterTypedInventory = function(type) {
+			return function(inv) {
+				if(type=='text')
+					return inv.size=='text';
+				return inv.size!='text';
+			}
+		}
+
 		$scope.filterInventory = function(inv) {
 			if($scope.local.filterInventoryActive && !inv.active)
 				return false;

@@ -424,7 +424,7 @@
 								<ui-select multiple
 									ng-model="context.banner.inventory" theme="bootstrap"> 
 									<ui-select-match placeholder="Select inventory...">{{$item.hid}}</ui-select-match> 
-									<ui-select-choices repeat="inv.id as inv in inventoryArray() | filter:filterActiveInventory | propsFilter: {hid: $select.search }">
+									<ui-select-choices repeat="inv.id as inv in inventoryArray() | filter:filterActiveInventory | filter:filterTypedInventory(context.banner.type) | propsFilter: {hid: $select.search }">
 										{{inv.hid}} 
 									</ui-select-choices>
 								</ui-select>
