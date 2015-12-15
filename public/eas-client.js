@@ -831,12 +831,17 @@ angular.module('EASApp').controller('EASCtrl',
 								return;
 							if(!inv.active)
 								return;
-							for(var imid in banner.images) {
-								var image = banner.images[imid];
-								if(!image)
-									continue;
-								if(image.size==inv.size)
+							if(inv.size=='text') {
+								if(banner.type=='text')
 									inventory[iid] = 1;
+							} else {
+								for(var imid in banner.images) {
+									var image = banner.images[imid];
+									if(!image)
+										continue;
+									if(image.size==inv.size)
+										inventory[iid] = 1;
+								}
 							}
 						});
 					}
@@ -914,11 +919,16 @@ angular.module('EASApp').controller('EASCtrl',
 							return;
 						if(!inv.active)
 							return;
-						for(var imid in banner.images) {
-							var image = banner.images[imid];
-							if(!image)
-								continue;
-							if(image.size==inv.size)
+						if(banner.type=='image') {
+							for(var imid in banner.images) {
+								var image = banner.images[imid];
+								if(!image)
+									continue;
+								if(image.size==inv.size)
+									inventory[iid] = 1;
+							}
+						} else if(banner.type=='text') {
+							if(inv.size=='text')
 								inventory[iid] = 1;
 						}
 					});
@@ -1027,12 +1037,17 @@ angular.module('EASApp').controller('EASCtrl',
 						if(!banner.active)
 							continue;
 						if(banner.inventory.indexOf(inv.id)>=0) {
-							for(var iid in banner.images) {
-								var image = banner.images[iid];
-								if(!image)
-									continue;
-								if(image.size==inv.size)
+							if(inv.size=='text') {
+								if(banner.type=='text')
 									banners[bid] = 1; 
+							} else {
+								for(var iid in banner.images) {
+									var image = banner.images[iid];
+									if(!image)
+										continue;
+									if(image.size==inv.size)
+										banners[bid] = 1; 
+								}
 							}
 						}
 					}
