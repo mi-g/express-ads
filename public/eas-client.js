@@ -1320,7 +1320,7 @@ angular.module('EASApp').controller('EASCtrl',
 						switch(sorter.index%3) {
 						case 0: return clicks || 0;
 						case 1: return imprs || 0;
-						case 2: return imprs ? (imprs || 0)/imprs : 0;
+						case 2: return imprs ? (clicks || 0)/imprs : 0;
 						}						
 					}
 				}
