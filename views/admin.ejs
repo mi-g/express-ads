@@ -712,7 +712,6 @@
 								</button>
 							</div>
 						</div>
-						
 						<div class="btn-group pull-right">
 							<div class="dropdown">
 								<button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
@@ -734,8 +733,8 @@
 						<div class="btn-group pull-right">
 							<div class="dropdown">
 								<button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-							    	<span ng-show="!data.ads.banner[local.filterBannerCampaign]">Used by any campaign</span>
-							    	<span ng-show="data.ads.banner[local.filterBannerCampaign]">Used by campaign {{data.ads.campaign[local.filterBannerCampaign].hid}}</span>
+							    	<span ng-show="!data.ads.campaign[local.filterBannerCampaign]">Used by any campaign</span>
+							    	<span ng-show="data.ads.campaign[local.filterBannerCampaign]">Used by campaign {{data.ads.campaign[local.filterBannerCampaign].hid}}</span>
 							    	<span class="caret"></span>
 								</button>
 								<ul class="dropdown-menu">
