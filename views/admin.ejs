@@ -757,6 +757,7 @@
 	   							<th><span class="fa fa-check" ng-click="selectionToggle()"></span></th>
 	   							<th></th>
 	   							<th><div ng-click="sorterField('banners','hid')">Name<div eas-sort="['banners','hid']"/></div></th>
+	   							<th></th>
 	   							<th><div ng-click="sorterField('banners','id')">Id<div eas-sort="['banners','id']"/></div></th>
 	   							<th><div ng-click="sorterStat('banners','total')">Total<div eas-sort="['banners','total']"/></div></th>
 	   							<th><div ng-click="sorterStat('banners','week',2)">Week<div eas-sort="['banners','week']"/></div></th>
@@ -774,6 +775,8 @@
 	   							<td><span class="fa" ng-class="bannerStatus(ban).clazz" 
 	   								title="{{bannerStatus(ban).clazz}}"></span> </td>
 	   							<td>{{ban.hid}}</td>
+	   							<td><span class="fa" ng-class="{'fa-picture-o':ban.type=='image','fa-align-justify':ban.type=='text'}" 
+	   								title="{{ban.type=='image'?'Image':'Text'}}"></span></td>
 	   							<td>{{ban.id}}</td>
 	   							<td>{{totalStats('ban',ban.id).string}}</td>
 	   							<td>{{instantStats('ban',ban.id,'week').string}}</td>
