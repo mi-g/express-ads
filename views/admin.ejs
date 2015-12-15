@@ -772,7 +772,7 @@
 	   								<input type="checkbox" ng-model="context.selected[ban.id]" ng-click="$event.stopPropagation()"/>
 	   							</td>
 	   							<td><span class="fa" ng-class="bannerStatus(ban).clazz" 
-	   								title="{{bannerStatus(ban).clazz}}"></span> </td>
+	   								title="{{bannerStatus(ban).title}}"></span> </td>
 	   							<td>{{ban.hid}}</td>
 	   							<td><span class="fa" ng-class="{'fa-picture-o':ban.type=='image','fa-align-justify':ban.type=='text'}" 
 	   								title="{{ban.type=='image'?'Image':'Text'}}"></span></td>
