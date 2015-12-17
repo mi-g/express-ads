@@ -818,7 +818,7 @@ module.exports = function(config) {
 			weightedCampaigns.forEach(function(campCont) {
 				if(pickedCampaign)
 					return;
-				if(weightCount+campCont.weight>=rnd) {
+				if(weightCount+campCont.weight>rnd) {
 					pickedCampaign = campCont.campaign;
 					return;
 				}
