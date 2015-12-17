@@ -30,6 +30,7 @@ angular.module('EASApp').controller('EASCtrl',
 			bannerType: "image",
 			bannerText: null,
 			bannerTextId: null,
+			addons: {},
 		}
 		$scope.campaignUsage = {};
 		$scope.bannerUsage = {};
@@ -57,16 +58,16 @@ angular.module('EASApp').controller('EASCtrl',
 					angular.merge($scope.local,stored);
 				} catch(e) {}
 		}
-		$scope.sizes = [
-		    {value: "300x250", label: "300x250" },
-		    {value: "250x250", label: "250x250" },
-		    {value: "468x60", label: "468x60" },
-		    {value: "728x90", label: "728x90" },
-		    {value: "120x600", label: "120x600" },
-		    {value: "160x600", label: "160x600" },
-		    {value: "160x300", label: "160x300" },
-		    {value: "text", label: "Text" },
-		];
+		var baseSizes = {
+		    "300x250": "300x250",
+		    "250x250": "250x250",
+		    "468x60": "468x60",
+		    "728x90": "728x90",
+		    "120x600": "120x600",
+		    "160x600": "160x600",
+		    "160x300": "160x300",
+		    "text": "Text",				
+		}
 		$scope.campTypes = [
 		    {value: "background", label: "Background", vLabel: "Weight" },
 		    {value: "click", label: "Clicks", vLabel: "Total clicks" },
@@ -82,7 +83,10 @@ angular.module('EASApp').controller('EASCtrl',
 		    {value: "imprperweek", label: "Imprs per week", vLabel: "Imprs per week" },
 		    {value: "imprpermonth", label: "Imprs per month", vLabel: "Imprs per month" },
 		];
-		$scope.bannerTypes = [{value:'image',label:'Images'},{value:'text',label:'Texts'}];
+		var baseBannerTypes = {
+			image: "Images",
+			text: "Texts",
+		};
 		$scope.nobanners = [{value:'hide',label:"Hide area"},{value:'blank',label:"Blank area"}];
 		$scope.startTypes = [
 		    {value: "now", label: "Starts now" },
@@ -189,7 +193,34 @@ angular.module('EASApp').controller('EASCtrl',
 			'imprperweek': { type: 'impr', duration: 7*24*60*60*1000 },
 			'imprpermonth': { type: 'impr', duration: 30*24*60*60*1000 }
 		};
+
+		function UpdateSizes(addons) {
+			$scope.sizes = [];
+			var sizes = angular.merge({},baseSizes);
+			for(var a in (addons || {}))
+				addons[a].sizes.forEach(function(size) {
+					size = size.toLowerCase()
+					if(!sizes[size])
+						sizes[size] = size[0].toUpperCase()+size.substring(1).toLowerCase();
+				});
+			Object.keys(sizes).sort().forEach(function(size) {
+				sizes[size.toLowerCase()] = size[0].toUpperCase()+size.substring(1).toLowerCase();
+				$scope.sizes.push({value: size, label: sizes[size]});
+			});
+		}
+		UpdateSizes();
 		
+		function UpdateBannerTypes(addons) {
+			$scope.bannerTypes = [];
+			var types = angular.merge({},baseBannerTypes);
+			for(var a in (addons || {}))
+				if(!types[a])
+					types[a] = addons[a].title;
+			Object.keys(types).sort().forEach(function(type) {
+				$scope.bannerTypes.push({value: type, label: types[type]});
+			});			
+		}
+		UpdateBannerTypes({});
 		
 		function Call(apiUrl,apiParams,callback) {
 			$scope.loading = true;
@@ -341,8 +372,11 @@ angular.module('EASApp').controller('EASCtrl',
 		    	$("[vdh-tooltip]").tooltip('hide');
 				if(!err) {
 					$scope.data = data;
+					$scope.context.addons = angular.merge({},data.ads.addons);
 					angular.extend($scope.osFamilies,data.osFamilies);
 					angular.extend($scope.browserFamilies,data.browserFamilies);
+					UpdateSizes(data.addons);
+					UpdateBannerTypes(data.addons);
 					$scope.context.selected = {}
 					$scope.selToggle = true;
 					$scope.calcInventoryUsage();
@@ -362,7 +396,11 @@ angular.module('EASApp').controller('EASCtrl',
 		$scope.prettyAds = function() {
 			return JSON.stringify($scope.data,null,4);
 		}
-		
+
+		$scope.pretty = function(data) {
+			return JSON.stringify(data,null,4);
+		}
+
 		/* inventory */
 		$scope.newInventory = function() {
 			$scope.context.inventory = {
@@ -721,6 +759,22 @@ angular.module('EASApp').controller('EASCtrl',
 					}
 			}
 		}
+		$scope.bannerType = function(banner) {
+			if(banner.type=='image') 
+				return {
+					clazz: 'fa-picture-o',
+					title: 'Image',
+				}
+			if(banner.type=='text') 
+				return {
+					clazz: 'fa-align-justify',
+					title: 'Text',
+				}
+			return {
+				clazz: 'fa-puzzle-piece',
+				title: $scope.data.addons[banner.type]?$scope.data.addons[banner.type].title:"",
+			}
+		}
 				
 		$scope.inventoryArray = function() {
 			if(!$scope.data || !$scope.data.ads || !$scope.data.ads.inventory)
@@ -831,17 +885,20 @@ angular.module('EASApp').controller('EASCtrl',
 								return;
 							if(!inv.active)
 								return;
-							if(inv.size=='text') {
-								if(banner.type=='text')
+							if(banner.type=='text') {
+								if(inv.size=='text')
 									inventory[iid] = 1;
-							} else {
+							} else if(banner.type=='image') {
 								for(var imid in banner.images) {
 									var image = banner.images[imid];
 									if(!image)
 										continue;
 									if(image.size==inv.size)
 										inventory[iid] = 1;
-								}
+								}								
+							} else if($scope.data.addons[banner.type]) {
+								if($scope.data.addons[banner.type].sizes.indexOf(inv.size)>=0)
+									inventory[iid] = 1;
 							}
 						});
 					}
@@ -930,6 +987,9 @@ angular.module('EASApp').controller('EASCtrl',
 						} else if(banner.type=='text') {
 							if(inv.size=='text')
 								inventory[iid] = 1;
+						} else if($scope.data.addons[banner.type]) {
+							if($scope.data.addons[banner.type].sizes.indexOf(inv.size)>=0)
+								inventory[iid] = 1;
 						}
 					});
 					for(var cid in $scope.data.ads.campaign) {
@@ -967,7 +1027,9 @@ angular.module('EASApp').controller('EASCtrl',
 			return function(inv) {
 				if(type=='text')
 					return inv.size=='text';
-				return inv.size!='text';
+				if(type=='images')
+					return inv.size!='text';
+				return $scope.data.addons[type] && $scope.data.addons[type].sizes.indexOf(inv.size)>=0;
 			}
 		}
 
@@ -1045,10 +1107,10 @@ angular.module('EASApp').controller('EASCtrl',
 						if(!banner.active)
 							continue;
 						if(banner.inventory.indexOf(inv.id)>=0) {
-							if(inv.size=='text') {
-								if(banner.type=='text')
+							if(banner.type=='text') {
+								if(inv.size=='text')
 									banners[bid] = 1; 
-							} else {
+							} else if(banner.type=='image') {
 								for(var iid in banner.images) {
 									var image = banner.images[iid];
 									if(!image)
@@ -1056,6 +1118,9 @@ angular.module('EASApp').controller('EASCtrl',
 									if(image.size==inv.size)
 										banners[bid] = 1; 
 								}
+							} else if($scope.data.addons[banner.type]) {
+								if($scope.data.addons[banner.type].sizes.indexOf(inv.size)>=0)
+									banners[bid] = 1;
 							}
 						}
 					}
@@ -1375,7 +1440,37 @@ angular.module('EASApp').controller('EASCtrl',
 				$scope.local.tab = type;
 				$scope["select"+type[0].toUpperCase()+type.substring(1)](item);
 			}
-		} 
+		}
+		
+		$scope.hasAddons = function() {
+			if($scope.data.addons)
+				for(var a in $scope.data.addons)
+					return true;
+			return false;
+		}
+		
+		$scope.haveAddonSettingsChanged = function() {
+			try {
+				return !angular.equals($scope.context.addons,$scope.data.ads.addons);
+			} catch(e) {
+				return false;
+			}
+		}
+		
+		$scope.resetAddons = function() {
+			$scope.context.addons = angular.merge({},$scope.data.ads.addons);
+		}
+		
+		$scope.updateAddons = function() {
+			var backup = $scope.context.addons;
+			$scope.context.addons = {};
+			Call('/set-addons',{addons: backup},function(err,data) {
+				if(err)
+					$scope.context.addons = backup;
+				else
+					$scope.getAds();
+			});				
+		}
 		
 		$scope.countries = [ // Taken from https://gist.github.com/unceus/6501985
              {name: 'Afghanistan', code: 'AF'},

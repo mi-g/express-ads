@@ -10,6 +10,7 @@
 	<div id="ads-section" class="!loading">
 		<ul class="nav nav-tabs" role="tablist">
 			<li class="pull-right"><span><a ng-click="getAds()" class="btn" title="Refresh"><span class="fa fa-refresh"></span></a></span></li>
+  			<li role="presentation tab" ng-class="{active:local.tab=='settings'}"><a ng-click="local.tab='settings'" aria-controls="debug" role=" tab">Express Ads</a></li>
 <% if(config.debugData) { %>
   			<li role="presentation tab" ng-class="{active:local.tab=='debug'}"><a ng-click="local.tab='debug'" aria-controls="debug" role=" tab">Debug</a></li>
 <% } %>
@@ -24,6 +25,47 @@
    				<pre>{{ prettyAds() }}</pre>
    			</div>
 <% } %>
+
+   			<div role="tabpanel" class="tab-pane" ng-class="{active:local.tab=='settings'}">
+				<form class="form-horizontal" role="form">
+
+				    <div class="form-group" ng-show="data.version">
+				        <label class="col-sm-2 control-label">Version</label>
+				        <div class="col-sm-4">
+				        	{{data.version}}
+				        </div>
+					</div>
+
+				    <div class="form-group" ng-repeat="(id,addon) in data.addons">
+				        <label class="col-sm-2 control-label">{{addon.title}}</label>
+				        <div class="col-sm-10">
+				        	<div class="form-group">
+						        <label class="col-sm-2 control-label">Version</label>
+						        <div class="col-sm-4">{{addon.version}}</div>
+				        	</div>
+				        	<div class="form-group" ng-repeat="field in addon.settings">
+						        <label class="col-sm-2 control-label" ng-bind="field.title"></label>
+						        <div class="col-sm-4" ng-if="field.type=='text'">
+					            	<input type="text" class="form-control" 
+					            		ng-model="context.addons[addon.name][field.name]"  
+					            		placeholder="{{field.placeholder}}"/>
+						        </div>
+				        	</div>
+				        </div>
+					</div>
+
+				    <div class="form-group" ng-show="haveAddonSettingsChanged()">
+				        <label class="col-sm-2 control-label"></label>
+						<div class="btn-group" class="col-sm-4">
+							<a ng-click="resetAddons()" class="btn btn-default">
+								<span class="fa fa-ban"> Cancel</span></a>
+							<a ng-click="updateAddons()" class="btn btn-primary">
+								<span class="fa fa-plus"> Update</span></a>
+				        </div>
+					</div>
+
+				</form>
+   			</div>
 
    			<div role="tabpanel" class="tab-pane" ng-class="{active:local.tab=='campaign'}">   				
    				<div ng-show="context.campaign">
@@ -392,7 +434,7 @@
 		                    </div>
 		                </div>
 
-					    <div class="form-group">
+					    <div class="form-group" ng-show="content.banner.type=='text' || context.banner.type=='image'">
 					        <label for="ban-link" class="col-sm-2 control-label">Link</label>
 					        <div class="col-sm-10">
 					            <input type="text" class="form-control" id="ban-link"  ng-model="context.banner.link"  placeholder="Target link for the banner">
@@ -774,8 +816,8 @@
 	   							<td><span class="fa" ng-class="bannerStatus(ban).clazz" 
 	   								title="{{bannerStatus(ban).title}}"></span> </td>
 	   							<td>{{ban.hid}}</td>
-	   							<td><span class="fa" ng-class="{'fa-picture-o':ban.type=='image','fa-align-justify':ban.type=='text'}" 
-	   								title="{{ban.type=='image'?'Image':'Text'}}"></span></td>
+	   							<td><span class="fa" ng-class="bannerType(ban).clazz" 
+	   								title="{{bannerType(ban).title}}"></span></td>
 	   							<td>{{ban.id}}</td>
 	   							<td>{{totalStats('ban',ban.id).string}}</td>
 	   							<td>{{instantStats('ban',ban.id,'week').string}}</td>

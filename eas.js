@@ -153,7 +153,7 @@ module.exports = function(app,config) {
 			options = options || {};
 			var styles = {};
 			var width, height;
-			if(ad.type=='image') {
+			if(ad.type!='text') {
 				var sizeMatch = /^([0-9]+)x([0-9]+)$/.exec(ad.inventory.size);
 				if(!sizeMatch)
 					return "";
@@ -168,7 +168,7 @@ module.exports = function(app,config) {
 					+encodeURIComponent(ad.banner.alt.trim())
 					+"'/></a>";
 					content = MakeLink(imgHTML);
-				} else {
+				} else if(ad.type=='text'){
 					var replFound = false;
 					content = ad.content.text.replace(/\[\[.*?\]\]/g,function(ph) {
 						replFound = true;
@@ -177,7 +177,8 @@ module.exports = function(app,config) {
 					});
 					if(!replFound)
 						content = MakeLink(ad.content.text);
-				}
+				} else 
+					content = ad.content;
 			} else if(ad.type=='text')
 				return '';
 			else {
@@ -192,7 +193,7 @@ module.exports = function(app,config) {
 				hasStyles=true;
 				break;
 			}
-			var tag=options.tag || ad.inventory.tag || (ad.type=='image'?"div":"p");
+			var tag=options.tag || ad.inventory.tag || (ad.type=='text'?"p":"div");
 			var parts=['<'+tag];
 			if(ad.inventory.classes.trim().length>0 || (options.classes && options.classes.length>0)) {
 				parts.push(" class='");
@@ -297,9 +298,11 @@ module.exports = function(app,config) {
 				missed: ads.getMissedInventory(),
 				ads: ads.getAds(),
 				stats: ads.getStats(),
+				addons: ads.getAddons(),
 				osFamilies: osFamilies,
 				browserFamilies: browserFamilies,
 				now: Date.now(),
+				version: modPackage.version,
 			});
 		});		
 	});
@@ -397,6 +400,13 @@ module.exports = function(app,config) {
 		});		
 	});
 
+	app.post(adminApiPath + '/set-addons', function(req, res) {
+		AdminApiCall(req,res,function(req,cb) {
+			ads.setAddons(req.body.addons,function() {
+				cb(null,{});				
+			});
+		});		
+	});
 
 	var eas = {
 		deliver: Deliver,

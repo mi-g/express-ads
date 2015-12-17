@@ -9,6 +9,7 @@ var fs = require('fs');
 var request = require('request');
 var path = require("path");
 var extend = require("extend");
+var ejs = require('ejs');
 
 const file = {
 	ads: __dirname + "/ads.json",
@@ -39,6 +40,8 @@ module.exports = function(config) {
 		campaign: {
 		},
 		banner: {
+		},
+		addons: {
 		},
 	}
 	var ads = extend(true,{},adsEmpty);
@@ -79,6 +82,13 @@ module.exports = function(config) {
 	}
 	var stats = extend(true,{},statsEmpty);
 	var exports = {};
+	var addons = {};
+	var addonTemplates = {};
+
+	(config.addons || []).forEach(function(addon) {
+		addonTemplates[addon.name] = ejs.compile(addon.template);
+		addons[addon.name] = addon;
+	});
 	
 	var gm;
 	if(config.imageMagick)
@@ -271,6 +281,20 @@ module.exports = function(config) {
 			if(!inventory.styles)
 				inventory.styles={};
 		}
+		var addons = {};
+		config.addons.forEach(function(addon0) {
+			var addon = {
+			}
+			addon0.settings.forEach(function(field) {
+				addon[field.name] = field.defaults;
+			});
+			addons[addon0.name] = addon;
+		});
+		for(var aid in ads.addons) {
+			if(!addons[aid])
+				delete ads.addons[aid];
+		}
+		ads.addons = extend(true,addons,ads.addons);
 		return ads;
 	}
 
@@ -351,6 +375,10 @@ module.exports = function(config) {
 	
 	exports.getAds = function() {
 		return ads;
+	}
+	
+	exports.getAddons = function() {
+		return addons;
 	}
 	
 	exports.getStats = function() {
@@ -570,6 +598,12 @@ module.exports = function(config) {
 		callback(null,{});
 	}
 	
+	exports.setAddons = function(addons,callback) {
+		ads.addons = addons;
+		Updated('ads');
+		callback(null,{});
+	}
+	
 	exports.removeGroup = function(type,ids,callback) {
 		if(ads[type]) {
 			for(var id in ids) {
@@ -580,6 +614,25 @@ module.exports = function(config) {
 			Updated('ads');
 		}
 		callback(null,{});
+	}
+	
+	ResolveAddon = function(addonName,inventory,banner,campaign) {
+		var size = {
+			type: inventory.size,
+		}
+		var sizeMatch = /^([0-9]+)x([0-9]+)$/.exec(inventory.size);
+		if(sizeMatch) {
+			size.width = parseInt(sizeMatch[1]);
+			size.height = parseInt(sizeMatch[2]);
+		}
+		var html = addonTemplates[addonName]({
+			settings: ads.addons[addonName],
+			size: size,
+			inventory: inventory,
+			banner: banner,
+			campaign: campaign,
+		});
+		return html;
 	}
 	
 	exports.pick = function(invHid,options) {
@@ -605,7 +658,6 @@ module.exports = function(config) {
 	
 		var ad = {
 			inventory: inventory,
-			type: inventory.size=='text'?'text':'image',
 		};
 		
 		var sessHist = options.sessHist; 
@@ -626,23 +678,29 @@ module.exports = function(config) {
 		var banners0 = inventory2banner[inventory.id];
 		for(var bid in banners0) {
 			var banner = ads.banner[bid];
-			if(banner.type=='text' && inventory.size=='text') {
+			if(banner.type=='text') {
+				if(inventory.size!='text')
+					continue;
 				var txtCount = 0;
 				for(var teid in banner.texts)
 					txtCount++;
 				if(txtCount==0)
 					continue;
-			} else if(banner.type=='text' || inventory.size=='text')
-				continue
-			else {
+			} else if(banner.type=='image') {
 				var imgCount = 0;
 				for(var imid in banner.images)
 					if(banner.images[imid].size==inventory.size)
 						imgCount++
 				if(imgCount==0)
 					continue;
+			} else {
+				var addon = addons[banner.type];
+				if(!addon)
+					continue;
+				if(addon.sizes.indexOf(inventory.size)<0)
+					continue;
 			}
-			if(banner.link.trim().length==0)
+			if((banner.type=='text' || banner.type=='image') && banner.link.trim().length==0)
 				continue;
 			if(!banner.active)
 				continue;
@@ -690,6 +748,7 @@ module.exports = function(config) {
 				console.info("EAS - no suitable banner for",invHid);
 			return ad;
 		}
+
 		var totalWeight = 0;
 		var weightedCampaigns = [];
 		var priorityCampaigns = [];
@@ -752,7 +811,7 @@ module.exports = function(config) {
 			if(Math.random()*campCont.probaBottom<campCont.probaTop)
 				pickedCampaign = campCont.campaign;
 		}
-	
+
 		if(!pickedCampaign) {
 			var rnd=Math.floor(Math.random()*totalWeight);
 			var weightCount = 0;
@@ -783,15 +842,17 @@ module.exports = function(config) {
 		});
 		var banner = ads.banner[banners2[Math.floor(Math.random()*banners2.length)]];
 		var contentArr = [];
-		if(inventory.size=='text') {
+		if(banner.type=='text') {
 			for(var teid in banner.texts)
 				contentArr.push(teid);
-		} else {
+		} else if(banner.type=='image') {
 			for(var imid in banner.images) {
 				var img = banner.images[imid];
 				if(img.size==inventory.size)
 					contentArr.push(imid);
 			}
+		} else {
+			contentArr.push(ResolveAddon(banner.type,inventory,banner,campaign));
 		}
 		if(sessHist) {
 			var contentArr1 = [];
@@ -807,24 +868,30 @@ module.exports = function(config) {
 			contentArr = contentArr1;
 		}
 		var content;
-		if(inventory.size=='text') 
+		if(banner.type=='text') 
 			content = banner.texts[contentArr[Math.floor(Math.random()*contentArr.length)]];
-		else
+		else if(banner.type=='image')
 			content = banner.images[contentArr[Math.floor(Math.random()*contentArr.length)]];
+		else
+			content = contentArr[0];
+		ad.type = banner.type;
 		ad.campaign = campaign;
 		ad.banner = banner;
 		ad.content = content;
 		if(sessHist) {
 			sessHist.c[campaign.id] = (sessHist.c[campaign.id] || 0) + 1; 
-			sessHist.b[banner.id] = (sessHist.b[banner.id] || 0) + 1; 
-			sessHist.i[content.id] = (sessHist.i[content.id] || 0) + 1; 
+			sessHist.b[banner.id] = (sessHist.b[banner.id] || 0) + 1;
+			if(content.id)
+				sessHist.i[content.id] = (sessHist.i[content.id] || 0) + 1; 
 		}
 		pageHist.c[campaign.id] = (pageHist.c[campaign.id] || 0) + 1; 
-		pageHist.b[banner.id] = (pageHist.b[banner.id] || 0) + 1; 
-		pageHist.i[content.id] = (pageHist.i[content.id] || 0) + 1; 
+		pageHist.b[banner.id] = (pageHist.b[banner.id] || 0) + 1;
+		if(content.id)
+			pageHist.i[content.id] = (pageHist.i[content.id] || 0) + 1; 
 		IncrStats('impr','cam',campaign.id);
 		IncrStats('impr','ban',banner.id);
-		IncrStats('impr','ima',content.id);
+		if(content.id)
+			IncrStats('impr','ima',content.id);
 		AddRoll(inventory.id,campaign.id);
 		return ad;
 	}
@@ -843,7 +910,7 @@ module.exports = function(config) {
 	exports.makeId = function() {
 		return MakeShortId();
 	}
-	
+		
 	return exports;
 }
 
