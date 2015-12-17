@@ -273,6 +273,21 @@ module.exports = function(config) {
 				banner.images = {};
 			if(banner.type=='text' && !banner.texts)
 				banner.texts = {};
+			if(banner.type!='image' && banner.type!='text') {
+				var addon0 = addons[banner.type]; 
+				if(!addon0)
+					banner.active = false;
+				else {
+					var addon = {};
+					addon0.bannerSettings.forEach(function(field) {
+						addon[field.name] = field.defaults;
+					});
+					banner.addon = extend(true,addon,banner.addon);
+					for(var field in banner.addon)
+						if(!addon[field])
+							delete banner.addon[field];
+				}
+			}
 		}
 		for(var iid in ads.inventory) {
 			var inventory = ads.inventory[iid];
@@ -281,20 +296,20 @@ module.exports = function(config) {
 			if(!inventory.styles)
 				inventory.styles={};
 		}
-		var addons = {};
+		var addons0 = {};
 		config.addons.forEach(function(addon0) {
 			var addon = {
 			}
 			addon0.settings.forEach(function(field) {
 				addon[field.name] = field.defaults;
 			});
-			addons[addon0.name] = addon;
+			addons0[addon0.name] = addon;
 		});
 		for(var aid in ads.addons) {
-			if(!addons[aid])
+			if(!addons0[aid])
 				delete ads.addons[aid];
 		}
-		ads.addons = extend(true,addons,ads.addons);
+		ads.addons = extend(true,addons0,ads.addons);
 		return ads;
 	}
 
