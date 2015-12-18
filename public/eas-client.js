@@ -587,6 +587,9 @@ angular.module('EASApp').controller('EASCtrl',
 				browsers: [],
 				osType: "any",
 				oss: [],
+				adbUsed: true,
+				adbUnsure: true,
+				adbUnused: true,
 			}
 			if($scope.context.bannerType=='image')
 				$scope.context.banner.images = {}
@@ -1027,7 +1030,7 @@ angular.module('EASApp').controller('EASCtrl',
 			return function(inv) {
 				if(type=='text')
 					return inv.size=='text';
-				if(type=='images')
+				if(type=='image')
 					return inv.size!='text';
 				return $scope.data.addons[type] && $scope.data.addons[type].sizes.indexOf(inv.size)>=0;
 			}

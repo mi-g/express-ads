@@ -47,6 +47,7 @@ module.exports = function(app,config) {
 		},
 		rollBacklog: 1000,
 		rollExpire: 48*60*60*1000,
+		adblockerDetection: true,
 	},config);
 	config.adminPath = config.adminPath || (config.path + "/admin");
 	config.adminStyles['eas'] = config.adminPath + '/public/style.css'
@@ -119,14 +120,36 @@ module.exports = function(app,config) {
 		}
 	}
 	
+	var detectAdblockerScript = 
+		["\n<script>",
+		"(function(d, t) {",
+		"    var s = d.createElement(t); s.type = 'text/javascript'; s.async = true;",
+		"    s.src = '"+config.path+"/ads/advert.js';",
+		"    var r = d.getElementsByTagName(t)[0]; r.parentNode.insertBefore(s, r);",
+		"  }(document, 'script'));",
+		"</script>"].join("\n");
+	
 	function Deliver(req) {
 		return function(iid,options) {
 			
-			if(req.session && !req.session.ads) {
-				req.session.ads = {};
-				if(req.browser) {
-					osFamilies[req.browser.os.family.toLowerCase()] = req.browser.os.family; 
-					browserFamilies[req.browser.ua.family.toLowerCase()] = req.browser.ua.family; 
+			var extraHtml = "";
+			var adBlocker = "unsure";
+			
+			if(req.session) {
+				if(!req.session.ads) {
+					req.session.ads = {};
+					if(req.browser) {
+						osFamilies[req.browser.os.family.toLowerCase()] = req.browser.os.family; 
+						browserFamilies[req.browser.ua.family.toLowerCase()] = req.browser.ua.family; 
+					}
+				}
+				if(config.adblockerDetection && !req.easAdbRequested) {
+					if(!req.session.ads.adBlocker) { 
+						extraHtml = detectAdblockerScript;
+						req.session.ads.adBlocker = "yes";
+						req.easAdbRequested = true;
+					} else 
+						adBlocker = req.session.ads.adBlocker;
 				}
 			}
 			if(!req.ads)
@@ -136,13 +159,14 @@ module.exports = function(app,config) {
 				browser: req.browser || null,
 				sessHist: req.session ? req.session.ads : null,
 				pageHist: req.ads,
+				adBlocker: adBlocker,
 			});
 			
 			if(!ad)
-				return "";
+				return extraHtml;
 			
 			if(!ad.banner && ad.inventory.nobanner=="hide")
-				return "";
+				return extraHtml;
 
 			function MakeLink(inside) {
 				return "<a href='/eas/"
@@ -156,7 +180,7 @@ module.exports = function(app,config) {
 			if(ad.type!='text') {
 				var sizeMatch = /^([0-9]+)x([0-9]+)$/.exec(ad.inventory.size);
 				if(!sizeMatch)
-					return "";
+					return extraHtml;
 				width = parseInt(sizeMatch[1]);
 				height = parseInt(sizeMatch[2]);
 			}
@@ -180,7 +204,7 @@ module.exports = function(app,config) {
 				} else 
 					content = ad.content;
 			} else if(ad.type=='text')
-				return '';
+				return extraHtml;
 			else {
 				content = "<div style='width:"+width+"px;height:"+height+"px'></div>";
 				styles={
@@ -214,7 +238,7 @@ module.exports = function(app,config) {
 			parts.push(">");
 			parts.push(content);
 			parts.push("</"+tag+">");
-			return parts.join("");
+			return parts.join("")+extraHtml;
 		}
 	}
 
@@ -251,6 +275,18 @@ module.exports = function(app,config) {
 			res.redirect(link);
 		} else
 			res.status(404).send("Not found");
+	});
+
+	app.get(config.path + '/ads/advert.js',function(req,res) {
+		if(req.session) {
+			req.session.ads = req.session.ads || {}
+			req.session.ads.adBlocker = "no";
+		}
+		res.header("Content-Type","application/javascript")
+			.header("Cache-Control","no-cache, no-store, must-revalidate")
+			.header("Pragma","no-cache")
+			.header("Expires","0")
+			.status(200).send("");
 	});
 
 	app.get(config.path + '/images/:file',function(req,res) {
@@ -303,6 +339,7 @@ module.exports = function(app,config) {
 				browserFamilies: browserFamilies,
 				now: Date.now(),
 				version: modPackage.version,
+				adblockerDetection: config.adblockerDetection,
 			});
 		});		
 	});

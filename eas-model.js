@@ -273,6 +273,11 @@ module.exports = function(config) {
 				banner.images = {};
 			if(banner.type=='text' && !banner.texts)
 				banner.texts = {};
+			if(typeof banner.adbUsed=="undefined") {
+				banner.adbUsed = true;
+				banner.adbUnsure = true;
+				banner.adbUnused = true;
+			}
 			if(banner.type!='image' && banner.type!='text') {
 				var addon0 = addons[banner.type]; 
 				if(!addon0)
@@ -747,6 +752,14 @@ module.exports = function(config) {
 					if(!(options.country && banner.oss.indexOf(options.country)<0))
 						continue;				
 				}
+			}
+			if(config.adblockerDetection) {
+				if(options.adBlocker=="yes" && !banner.adbUsed)
+					continue;
+				if(options.adBlocker=="unsure" && !banner.adbUnsure)
+					continue;
+				if(options.adBlocker=="no" && !banner.adbUnused)
+					continue;
 			}
 			if(banner.cap && sessHist && (sessHist.b[banner.id] || 0)>=banner.cap)
 				continue;
