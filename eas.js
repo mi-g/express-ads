@@ -452,6 +452,7 @@ module.exports = function(app,config) {
 		stylesHTML: stylesHTML,
 		scripts: scripts,
 		scriptsHTML: scriptsHTML,
+		saveStats: ads.saveStats,
 	}
 	
 	return eas; 

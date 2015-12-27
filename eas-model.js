@@ -351,7 +351,7 @@ module.exports = function(config) {
 		stats: false,
 	}
 	
-	function SaveToFile(which) {
+	function SaveToFile(which,callback) {
 		if(saveInProgress[which]) {
 			modified[which]=true;
 		} else {
@@ -367,8 +367,12 @@ module.exports = function(config) {
 					saveInProgress[which]=false;				
 					if(err)
 						console.warn("Could not save",file[which],":",err);
-					else if(modified[which])
-						SaveToFile(which);
+					else if(modified[which]) {
+						SaveToFile(which,callback);
+						callback = null;
+					}
+					if(callback)
+						callback();
 				});
 			}
 		}
@@ -403,6 +407,10 @@ module.exports = function(config) {
 	
 	exports.getStats = function() {
 		return stats;
+	}
+	
+	exports.saveStats = function(callback) {
+		SaveToFile('stats',callback);
 	}
 	
 	exports.setInventory = function(inventory) {
