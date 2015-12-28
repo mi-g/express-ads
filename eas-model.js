@@ -11,11 +11,6 @@ var path = require("path");
 var extend = require("extend");
 var ejs = require('ejs');
 
-const file = {
-	ads: __dirname + "/ads.json",
-	stats: __dirname + "/stats.json",
-}
-
 const periodTypes = { 
 	'click': { type: 'click' },
 	'impr': { type: 'impr' },
@@ -97,14 +92,14 @@ module.exports = function(config) {
 		gm = require("gm");
 	
 	function PurgeTmp() {
-		fs.readdir(__dirname + "/ads/tmp/",function(err,files) {
+		fs.readdir(config.files.tmp+"/",function(err,files) {
 			if(err)
 				return console.warn("Could not read tmp directory:",err);
 			var now = Date.now();
 			files.forEach(function(file) {
 				if(file=='.gitignore' || file=='keepalive')
 					return;
-				var path = __dirname + "/ads/tmp/"+file;
+				var path = config.files.tmp+"/"+file;
 				fs.stat(path,function(err,stats) {
 					if(err)
 						return console.warn("Could not read stat for file",path,":",err);
@@ -302,7 +297,7 @@ module.exports = function(config) {
 				inventory.styles={};
 		}
 		var addons0 = {};
-		config.addons.forEach(function(addon0) {
+		(config.addons || []).forEach(function(addon0) {
 			var addon = {
 			}
 			addon0.settings.forEach(function(field) {
@@ -323,9 +318,9 @@ module.exports = function(config) {
 	}
 	
 	function LoadFromFile(which) {
-		fs.readFile(file[which],"utf-8",function(err,data) {
+		fs.readFile(config.files[which],"utf-8",function(err,data) {
 			if(err)
-				console.warn("Could not load",file[which],":",err);
+				console.warn("Could not load",config.files[which],":",err);
 			else try {
 				switch(which) {
 				case "ads": 
@@ -339,7 +334,7 @@ module.exports = function(config) {
 				modified[which] = false;
 				return;
 			} catch(e) {
-				console.error("Could not parse",file[which],":",err);			
+				console.error("Could not parse",config.files[which],":",e,e.stack);			
 			}
 		});
 	}
@@ -363,10 +358,10 @@ module.exports = function(config) {
 			}
 			if(data) {
 				saveInProgress[which]=true;
-				fs.writeFile(file[which],data,"utf-8",function(err) {
+				fs.writeFile(config.files[which],data,"utf-8",function(err) {
 					saveInProgress[which]=false;				
 					if(err)
-						console.warn("Could not save",file[which],":",err);
+						console.warn("Could not save",config.files[which],":",err);
 					else if(modified[which]) {
 						SaveToFile(which,callback);
 						callback = null;
@@ -477,11 +472,11 @@ module.exports = function(config) {
 				if(banner.images[iid].url)
 					continue;
 				tasks++;
-				var imagePath = __dirname + "/ads/images/"+iid+".png" 
+				var imagePath = config.files.images+"/"+iid+".png" 
 				fs.exists(imagePath,function(exists) {
 					if(exists)
 						return Done();
-					var tmpPath = __dirname + "/ads/tmp/"+iid+".png"; 
+					var tmpPath = config.files.tmp+"/"+iid+".png"; 
 					fs.exists(tmpPath,function(exists) {
 						if(exists) {
 							fs.rename(tmpPath,imagePath,function(err) {
@@ -522,7 +517,7 @@ module.exports = function(config) {
 		var m = /^[^\?]+\.([^\?\.]+)/.exec(url);
 		if(m)
 			extension = m[1];
-		var raw = __dirname + "/ads/tmp/"+id+"-raw."+extension;
+		var raw = config.files.tmp+"/"+id+"-raw."+extension;
 		try {
 			var r = request.get({ 
 				url: url,
@@ -560,7 +555,7 @@ module.exports = function(config) {
 								Updated('ads');
 								callback(null,{image:images[id]});							
 							} else {
-								var finalFile = __dirname + "/ads/tmp/"+id+".png";
+								var finalFile = config.files.tmp+"/"+id+".png";
 								gm(raw)
 								.noProfile()
 								.write(finalFile, function (err) {
@@ -570,7 +565,7 @@ module.exports = function(config) {
 										id: id,
 										size: sizeKey,
 									}
-									var frameFile = __dirname + "/ads/tmp/"+id+"-0.png";
+									var frameFile = config.files.tmp+"/"+id+"-0.png";
 									fs.exists(frameFile,function(exists) {
 										if(exists) 
 											fs.rename(frameFile,finalFile,function(err) {

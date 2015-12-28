@@ -48,6 +48,12 @@ module.exports = function(app,config) {
 		rollBacklog: 1000,
 		rollExpire: 48*60*60*1000,
 		adblockerDetection: true,
+		files: {
+			ads: __dirname + "/ads.json",
+			stats: __dirname + "/stats.json",
+			tmp: __dirname + "/ads/tmp",
+			images: __dirname + "/ads/images",
+		}
 	},config);
 	config.adminPath = config.adminPath || (config.path + "/admin");
 	config.adminStyles['eas'] = config.adminPath + '/public/style.css'
@@ -136,29 +142,29 @@ module.exports = function(app,config) {
 			var adBlocker = "unsure";
 			
 			if(req.session) {
-				if(!req.session.ads) {
-					req.session.ads = {};
+				if(!req.session.expressAds) {
+					req.session.expressAds = {};
 					if(req.browser) {
 						osFamilies[req.browser.os.family.toLowerCase()] = req.browser.os.family; 
 						browserFamilies[req.browser.ua.family.toLowerCase()] = req.browser.ua.family; 
 					}
 				}
-				if(config.adblockerDetection && !req.easAdbRequested) {
-					if(!req.session.ads.adBlocker) { 
+				if(config.adblockerDetection && !req.expressAdsAdbRequested) {
+					if(!req.session.expressAds.adBlocker) { 
 						extraHtml = detectAdblockerScript;
-						req.session.ads.adBlocker = "yes";
-						req.easAdbRequested = true;
+						req.session.expressAds.adBlocker = "yes";
+						req.expressAdsAdbRequested = true;
 					} else 
-						adBlocker = req.session.ads.adBlocker;
+						adBlocker = req.session.expressAds.adBlocker;
 				}
 			}
-			if(!req.ads)
-				req.ads = {};
+			if(!req.expressAdsData)
+				req.expressAdsData = {};
 			var ad = ads.pick(iid,{
 				country: req.country || null,
 				browser: req.browser || null,
-				sessHist: req.session ? req.session.ads : null,
-				pageHist: req.ads,
+				sessHist: req.session ? req.session.expressAds : null,
+				pageHist: req.expressAdsData,
 				adBlocker: adBlocker,
 			});
 			
@@ -247,7 +253,7 @@ module.exports = function(app,config) {
 		AdminTemplate(function(adminUI) {
 			res.send(adminPageTemplate({
 				config: config,
-				adminUI: adminUI,
+				adminUI: AdminTemplate,
 				stylesHTML: stylesHTML,
 				scriptsHTML: scriptsHTML,
 				version: modPackage.version,
@@ -279,8 +285,8 @@ module.exports = function(app,config) {
 
 	app.get(config.path + '/ads/advert.js',function(req,res) {
 		if(req.session) {
-			req.session.ads = req.session.ads || {}
-			req.session.ads.adBlocker = "no";
+			req.session.expressAds = req.session.expressAds || {}
+			req.session.expressAds.adBlocker = "no";
 		}
 		res.header("Content-Type","application/javascript")
 			.header("Cache-Control","no-cache, no-store, must-revalidate")
@@ -454,6 +460,14 @@ module.exports = function(app,config) {
 		scriptsHTML: scriptsHTML,
 		saveStats: ads.saveStats,
 	}
+	
+	app.expressAds = eas;
+	
+	app.use(function(req,res,next) {
+		req.expressAds = eas;
+		req.deliverAd = Deliver(req);
+		next();
+	});
 	
 	return eas; 
 }
