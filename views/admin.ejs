@@ -7,7 +7,7 @@
 
 	<div class="loading" ng-style="{visibility: loading?'visible':'hidden'}">Loading...</div>
 
-	<div id="ads-section" class="!loading">
+	<div id="ads-section" ng-show="!loading">
 		<ul class="nav nav-tabs" role="tablist">
 			<li class="pull-right"><span><a ng-click="getAds()" class="btn" title="Refresh"><span class="fa fa-refresh"></span></a></span></li>
   			<li role="presentation tab" ng-class="{active:local.tab=='settings'}"><a ng-click="local.tab='settings'" aria-controls="debug" role=" tab">Express Ads</a></li>
