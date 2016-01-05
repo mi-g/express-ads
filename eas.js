@@ -22,6 +22,7 @@ module.exports = function(app,config) {
 	
 	config = extend(true,{
 		path: "/eas",
+		standaloneAdminUI: true,
 		adminStyles: {
 			fontAwesome: "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css",
 			bootstrap: "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/css/bootstrap.min.css",
@@ -252,17 +253,18 @@ module.exports = function(app,config) {
 	}
 
 	/* define routes */
-	app.get(config.adminPath,function(req,res) {
-		AdminTemplate(function(adminUI) {
-			res.send(adminPageTemplate({
-				config: config,
-				adminUI: AdminTemplate,
-				stylesHTML: stylesHTML,
-				scriptsHTML: scriptsHTML,
-				version: modPackage.version,
-			}));			
+	if(config.standaloneAdminUI)
+		app.get(config.adminPath,function(req,res) {
+			AdminTemplate(function(adminUI) {
+				res.send(adminPageTemplate({
+					config: config,
+					adminUI: AdminTemplate,
+					stylesHTML: stylesHTML,
+					scriptsHTML: scriptsHTML,
+					version: modPackage.version,
+				}));			
+			});
 		});
-	});
 	
 	app.get(config.adminPath+"/public/:file",function(req,res) {
 		var filePath =  path.resolve(__dirname,"public/"+req.params.file);
