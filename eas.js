@@ -175,9 +175,12 @@ module.exports = function(app,config) {
 				return extraHtml;
 
 			function MakeLink(inside) {
-				return "<a href='/eas/"
-					+ad.inventory.id+"/"+ad.campaign.id+"/"+ad.banner.id+"/"+ad.content.id
-					+"' target='_blank' rel='nofollow'>"+inside+"</a>";
+				if(ad.link)
+					return "<a href='"+ad.link+"' target='_blank' rel='nofollow'>"+inside+"</a>";
+				else
+					return "<a href='/eas/"
+						+ad.inventory.id+"/"+ad.campaign.id+"/"+ad.banner.id+"/"+ad.content.id
+						+"' target='_blank' rel='nofollow'>"+inside+"</a>";
 			}
 			
 			options = options || {};

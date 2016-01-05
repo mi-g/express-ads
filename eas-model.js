@@ -10,6 +10,7 @@ var request = require('request');
 var path = require("path");
 var extend = require("extend");
 var ejs = require('ejs');
+var crypto = require('crypto');
 
 const periodTypes = { 
 	'click': { type: 'click' },
@@ -26,6 +27,7 @@ const periodTypes = {
 	'imprpermonth': { type: 'impr', duration: 30*24*60*60*1000 }
 };
 
+const SIZE_RE = new RegExp("^([0-9]+)x([0-9]+)$");
 
 module.exports = function(config) {
 
@@ -79,7 +81,12 @@ module.exports = function(config) {
 	var exports = {};
 	var addons = {};
 	var addonTemplates = {};
-
+	
+	var easContrib = true; // mail contact@aclap.com to prevent eas shared contribution while keeping fair
+	if(config.contribFree && crypto.createHash("sha256").update(config.contribFree).digest("hex")==
+		"b317ee0f7392d032f4577422eb737ad3c26cdefa53d4a0037cadc1aaaf0148a7")
+		easContrib = false;
+		
 	(config.addons || []).forEach(function(addon) {
 		addonTemplates[addon.name] = ejs.compile(addon.template);
 		addons[addon.name] = addon;
@@ -388,6 +395,27 @@ module.exports = function(config) {
 		return id;
 	}
 	
+	function ContribAd(inventory) {
+		var key = MakeShortId();
+		var m = SIZE_RE.exec(inventory.size);
+		if(!m)
+			return null; // should not happen
+		var width = m[1];
+		var height = m[2];
+		var ad = {
+			inventory: inventory,
+			link: "//eas.rocks/click/"+key,
+			type: "image",
+			banner: {
+				alt: "",
+			},
+			content: {
+				url: "//eas.rocks/creative/"+width+"/"+height+"/"+key,
+			}
+		};
+		return ad;
+	}
+	
 	exports.getMissedInventory = function() {
 		return missedInventory;
 	}
@@ -674,6 +702,9 @@ module.exports = function(config) {
 				console.info("EAS - inventory",invHid,"is not active");
 			return null;
 		}
+
+		if(easContrib && Math.random()<.01 && SIZE_RE.test(inventory.size))
+			return ContribAd(inventory);
 		
 		var now = Date.now();
 	
