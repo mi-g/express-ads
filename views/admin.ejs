@@ -50,6 +50,14 @@
 					            		ng-model="context.addons[addon.name][field.name]"  
 					            		placeholder="{{field.placeholder}}"/>
 						        </div>
+						        <div class="col-sm-1" ng-if="field.type=='checkbox'">
+					            	<input type="checkbox" class="form-control" 
+					            		ng-model="context.addons[addon.name][field.name]" />
+						        </div>
+						        <div class="col-sm-10" ng-if="field.type=='longtext'">
+					            	<textarea class="form-control" 
+					            		ng-model="context.addons[addon.name][field.name]"></textarea>
+						        </div>
 				        	</div>
 				        </div>
 					</div>
@@ -575,6 +583,14 @@
 					            	<input type="text" class="form-control" 
 					            		ng-model="context.banner.addon[field.name]"  
 					            		placeholder="{{field.placeholder}}"/>
+						        </div>
+						        <div class="col-sm-1" ng-if="field.type=='checkbox'">
+					            	<input type="checkbox" class="form-control" 
+					            		ng-model="context.banner.addon[field.name]"/>
+						        </div>
+						        <div class="col-sm-10" ng-if="field.type=='longtext'">
+					            	<textarea class="form-control" 
+					            		ng-model="context.banner.addon[field.name]"></textarea>
 						        </div>
 				        	</div>
 						</div>
