@@ -2,6 +2,10 @@
   display: none !important;
 }
 
+.eas *[ng-click] {
+	cursor: pointer;
+}
+
 .eas-page header {
 	background-color: #333;
 	color: #ccc;
@@ -16,8 +20,8 @@
 	background-color: #eee;
 }
 
-.eas .tooltip-inner {
-	max-width: none;
+.tooltip-inner {
+	max-width: none !important;
 }
 
 .tooltip .eas-tooltip-label {
