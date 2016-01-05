@@ -298,13 +298,13 @@
 						<div class="btn-group pull-right">
 							<div class="dropdown">
 								<button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-							    	<span ng-show="!data.ads.inventory[local.filterCampaignInventory]">Using any inventory</span>
-							    	<span ng-show="data.ads.inventory[local.filterCampaignInventory]">Using Inventory {{data.ads.inventory[local.filterCampaignInventory].hid}}</span>
+							    	<span ng-show="!data.ads.inventory[local.filterCampaignInventory]">Using any area</span>
+							    	<span ng-show="data.ads.inventory[local.filterCampaignInventory]">Using area {{data.ads.inventory[local.filterCampaignInventory].hid}}</span>
 							    	<span class="caret"></span>
 								</button>
 								<ul class="dropdown-menu">
 	        						<li>
-	        							<a ng-click="local.filterCampaignInventory=null">Any inventory</a>
+	        							<a ng-click="local.filterCampaignInventory=null">Any area</a>
 	        						</li>
 	        						<li ng-repeat="(iid,inventory) in data.ads.inventory">
 	        							<a ng-click="local.filterCampaignInventory=iid">{{inventory.hid}}</a>
@@ -794,13 +794,13 @@
 						<div class="btn-group pull-right">
 							<div class="dropdown">
 								<button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-							    	<span ng-show="!data.ads.inventory[local.filterBannerInventory]">Using any inventory</span>
-							    	<span ng-show="data.ads.inventory[local.filterBannerInventory]">Using inventory {{data.ads.inventory[local.filterBannerInventory].hid}}</span>
+							    	<span ng-show="!data.ads.inventory[local.filterBannerInventory]">Using any area</span>
+							    	<span ng-show="data.ads.inventory[local.filterBannerInventory]">Using area {{data.ads.inventory[local.filterBannerInventory].hid}}</span>
 							    	<span class="caret"></span>
 								</button>
 								<ul class="dropdown-menu">
 	        						<li>
-	        							<a ng-click="local.filterBannerInventory=null">Any inventory</a>
+	        							<a ng-click="local.filterBannerInventory=null">Any area</a>
 	        						</li>
 	        						<li ng-repeat="(iid,inventory) in data.ads.inventory">
 	        							<a ng-click="local.filterBannerInventory=iid">{{inventory.hid}}</a>
@@ -1067,7 +1067,7 @@
 	   								<li><a ng-click="activeSelected(false)"><span class="fa fa-pause"> &nbsp;Pause</span></a></li>
 	   								<li><a ng-click="removeSelected()"><span class="fa fa-trash"> &nbsp;Remove</span></a></li>
 								</ul>
-								<button ng-show="!context.inventory" ng-click="newInventory()" class="btn btn-default"><span class="fa fa-plus"> New Inventory</span></button>
+								<button ng-show="!context.inventory" ng-click="newInventory()" class="btn btn-default"><span class="fa fa-plus"> New area</span></button>
 							</div>
 						</div>
 

@@ -426,7 +426,7 @@ angular.module('EASApp').controller('EASCtrl',
 		}
 
 		$scope.removeInventory = function(inv) {
-			if(confirm("Are you sure you want to remove the inventory ?")) {
+			if(confirm("Are you sure you want to remove the area ?")) {
 				$scope.context.inventory = null;
 				Call('/remove-inventory',{iid: inv.id},function(err,data) {
 					$scope.getAds();
