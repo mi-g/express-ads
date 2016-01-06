@@ -231,6 +231,26 @@ For styles:
 | `bootstrapDateTimePicker` | `https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.37/css/bootstrap-datetimepicker.min.css` |
 | `uiSelect` | `https://cdnjs.cloudflare.com/ajax/libs/angular-ui-select/0.13.2/select.min.css` |
 
+## Using the admin interface
+
+This is pretty straight forward. 
+
+Basically you create an inventory area, specifying a size. Then, you create a banner, specifying type *Image*, fill-in details, including a target link, indicate which areas this banner can be displayed to, add images to the banner (only images with a size that fit an inventory area will be used), specify filters if you want to. Next, create a campaign, specifying a type, for instance, *Background*, the banners you want to use for this campaign and you are all set, express-ads should start delivering ads.
+
+There are a few things that may not be obvious though.
+
+When using a *Text* banner, that may contain several texts to be chosen randomly, if you simply specify a text like `This is the text of my ad`, the whole sentence will appear as a link. If you do `This is the [[text]] of [[my ad]]`, `text` and `my ad` will appear as links (to the target link you specified for the banner), while the remaining words will show up as normal text.
+
+When specifying a target link for a banner, you can use the following placeholders:
+
+| Placeholder | Replaced with |
+| ----------- | ------------- |
+| `{{INV}}` | the inventory area id | 
+| `{{CAM}}` | the campaign id |
+| `{{BAN}}` | the banner id |
+| `{{IMA}}` | the creative (specific image or text) id |
+| `{{ALL}}` | equivalent to `{{INV}}.{{CAM}}.{{BAN}}.{{IMA}}` |
+
 # Limitations
 
 - Express Ads is not intended to support multiple users editing ads from the admin interface at the same time
