@@ -26,9 +26,9 @@ provides a nice admin interface.
 
 ## Screenshots
 
-[![ScreenShot](screenshots/screenshot1-thumb.jpg)](screenshots/screenshot1.md)
-[![ScreenShot](screenshots/screenshot2-thumb.jpg)](screenshots/screenshot2.md)
-[![ScreenShot](screenshots/screenshot3-thumb.jpg)](screenshots/screenshot3.md)
+[![ScreenShot](https://eas.rocks/images/screenshot1-thumb.jpg)](https://eas.rocks/images/screenshot1.jpg)
+[![ScreenShot](https://eas.rocks/images/screenshot2-thumb.jpg)](https://eas.rocks/images/screenshot2.jpg)
+[![ScreenShot](https://eas.rocks/images/screenshot3-thumb.jpg)](https://eas.rocks/images/screenshot3.jpg)
 
 # Using Express Ads (short version)
 
