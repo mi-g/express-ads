@@ -139,7 +139,8 @@ When doing `require('express-ads')(app,options)`, `options` is an object that ca
 | `debugLiveTemplate` | `false` | if set to `true`, it won't be necessary to restart the server app to see changes in the admin user interface |
 | `imageMagick` | `false` | use *ImageMagik* to manipulate banner images. On *Ubuntu*, you can install *ImageMagick* with `apt-get install imagemagick` |
 | `addons` | `null` | an array of add-on modules. See below *Extending express-ads* |
-| `allowedSizes` | see below | an object describing the available inventory areas sizes. A new size can be added by specifying a corresponding entry in `allowedSizes`, for instance `"123x456":1`. An existing size can be removed by setting its value to *0*: `"468x60":0`  
+| `allowedSizes` | see below | an object describing the available inventory areas sizes. A new size can be added by specifying a corresponding entry in `allowedSizes`, for instance `"123x456":1`. An existing size can be removed by setting its value to *0*: `"468x60":0`  |
+| `allowUpload` | `true` | is uploading local image files allowed |
 
 plus a number of parameters dedicated to integrating the express-ads admin interface to the site's admin (see below).
 
