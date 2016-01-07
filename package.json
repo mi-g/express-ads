@@ -1,6 +1,6 @@
 {
 	"name": "express-ads",
-	"version": "0.0.2",
+	"version": "0.0.3",
 	"main": "eas.js",
 	"description":"Ads distribution and management module for Express",
 	"keywords":[
