@@ -259,6 +259,8 @@ For styles:
 | `bootstrapDateTimePicker` | `https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.37/css/bootstrap-datetimepicker.min.css` |
 | `uiSelect` | `https://cdnjs.cloudflare.com/ajax/libs/angular-ui-select/0.13.2/select.min.css` |
 
+You can see an example of *express-ads* admin page integration in the [exskel](https://github.com/mi-g/exskel) (a skeleton for Express-based web sites).
+
 ## Using the admin interface
 
 This is pretty straight forward. 
