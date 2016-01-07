@@ -23,6 +23,7 @@ provides a nice admin interface.
 - Full admin interface integrable to the site's existing admin
 - Not relying on a specific database
 - Robust to ad-blockers (ads served from the site itself)
+- Extensible via add-ons to serve ads for external platforms
 
 ## Screenshots
 
@@ -137,6 +138,7 @@ When doing `require('express-ads')(app,options)`, `options` is an object that ca
 | `debugData` | `false` | if set to `true`, the admin interface will display an additional containing the raw JSON data for ads config and stats |
 | `debugLiveTemplate` | `false` | if set to `true`, it won't be necessary to restart the server app to see changes in the admin user interface |
 | `imageMagick` | `false` | use *ImageMagik* to manipulate banner images. On *Ubuntu*, you can install *ImageMagick* with `apt-get install imagemagick` |
+| `addons` | null | an array of add-on modules. See below *Extending express-ads* |
 
 plus a number of parameters dedicated to integrating the express-ads admin interface to the site's admin (see below).
 
@@ -251,10 +253,55 @@ When specifying a target link for a banner, you can use the following placeholde
 | `{{IMA}}` | the creative (specific image or text) id |
 | `{{ALL}}` | equivalent to `{{INV}}.{{CAM}}.{{BAN}}.{{IMA}}` |
 
+# Extending express-ads
+
+Express-ads can be extended using add-ons. There are currently 2 add-ons modules:
+
+* [express-ads-adsense](https://github.com/mi-g/express-ads-adsense) for serving ads from AdSense 
+* [express-ads-chitika](https://github.com/mi-g/express-ads-chitika) for serving ads from Chitika
+
+## Using an express-ads add-on
+
+When calling `require('express-ads')(app,options)`, `options` must contain fields `addons` with an array of add-on modules as value. For instance:
+
+```
+require('express-ads')(app,{
+	...
+	addons: [ require('express-ads-adsense'), require('express-ads-chitika') ] 
+});
+```
+
+When creating a new banner, additional types will be available, in this case `AdSense` and `Chitika`. Depending on the add-on requirement, you may have to setup addtional configuration from the admin interface, like the publisher ID and slot ID, either globally from the *Express Ads* tab, or per banner in the banner settings panel.
+
+## Developing an add-on
+
+If you want to develop an add-on for another platform, the good news is that it is very simple. The best way is to start from an exiting add-on like [the one for AdSense](https://github.com/mi-g/express-ads-adsense). 
+
+Rename `adsense.js` to something more appropriate, and edit the file to match your needs. `exports.settings` and `exports.bannerSettings` define the settings for the add-on, repectively globally and per-banner. There are 3 parameter types you can use:
+
+| Parameter | Description |
+| --------- | ----------- |
+| `text` | a single line text parameter |
+| `longtext` | a text over several lines |
+| `checkbox` | a checkbox parameter |
+
+The file `template.ejs` describes (in EJS templating language) the HTML code that will be generated.
+
+When you define a parameter with name, say `myparam` in `settings`, it's value is available from the template using `<%= settings.myparam %>`. If defined in `bannerSettings`, you can read it as `<%= banner.addon.myparam %>`.
+
+Other variables are also available in the template:
+
+| Parameter | Description |
+| --------- | ----------- |
+| `size` | an object with field `width` and `height` corresponding to the current area |
+| `campaign` | the full campaign object |
+| `banner` | the full banner object |
+| `inventory` | the full inventory object | 
+
 # Limitations
 
 - Express Ads is not intended to support multiple users editing ads from the admin interface at the same time
-- In this early version, only plain images and text ads are supported
+- In this early version, only plain images and text ads are supported, not videos. Add-ons allow serving ads from external platforms 
 
 # Supporting Express Ads
 
