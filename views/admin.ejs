@@ -614,7 +614,7 @@
 					        <div class="col-sm-5 btn-group">
 					            	<a ng-click="addBannerImage()" class="btn btn-default">Load image</a>
 					            	<a ng-click="addBannerImageUrl()" class="btn btn-default">External URL</a>
-		                        	<button file-field class="btn btn-default" ng-model="context.imageFiles">Upload images</button>
+		                        	<button ng-show="data.allowUpload" file-field class="btn btn-default" ng-model="context.imageFiles">Upload images</button>
 					        </div>
 					    </div>
 

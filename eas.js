@@ -379,6 +379,7 @@ module.exports = function(app,config) {
 				version: modPackage.version,
 				adblockerDetection: config.adblockerDetection,
 				sizes: AllowedSizes(),
+				allowUpload: config.allowUpload,
 			});
 		});		
 	});
