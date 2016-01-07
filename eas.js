@@ -9,6 +9,7 @@ var fs = require('fs');
 var ejs = require('ejs');
 var extend = require('extend');
 var path = require('path');
+var multipart = require('connect-multiparty');
 
 var modPackage = require('./package');
 
@@ -72,6 +73,7 @@ module.exports = function(app,config) {
 			"728x90": 1,
 			"88x31": 1,
 		},
+		allowUpload: true,
 	},config);
 	config.adminPath = config.adminPath || (config.path + "/admin");
 	config.adminStyles['eas'] = config.adminPath + '/public/style.css'
@@ -363,7 +365,7 @@ module.exports = function(app,config) {
 				sizes.push(s);
 		return sizes;
 	}
-	
+
 	app.post(adminApiPath + '/', function(req, res) {
 		AdminApiCall(req,res,function(req,cb) {
 			cb(null,{
@@ -480,6 +482,19 @@ module.exports = function(app,config) {
 				cb(null,{});				
 			});
 		});		
+	});
+
+	if(config.allowUpload)
+		app.use(multipart({
+		    uploadDir: config.files.tmp,
+		}));
+
+	app.post(adminApiPath + '/upload-banner-images', function(req, res) {
+		AdminApiCall(req,res,function(req,cb) {
+			ads.uploadBannerImages(req.body.bid,req.files.files,function(err,result) {
+				cb(err,result);				
+			});
+		});
 	});
 
 	var eas = {

@@ -18,6 +18,7 @@ angular.module('EASApp').controller('EASCtrl',
 			banner: null,
 			addImageError: null,
 			addImageUrl: "",
+			imageFiles: [],
 			startType: "now",
 			endType: "never",
 			start: Date.now(),
@@ -215,10 +216,13 @@ angular.module('EASApp').controller('EASCtrl',
 		}
 		UpdateBannerTypes({});
 		
-		function Call(apiUrl,apiParams,callback) {
+		function Call(apiUrl,apiParams,options,callback) {
 			$scope.loading = true;
-
-			$http.post(easAPI + apiUrl,apiParams).then(function(data) {
+			if(!callback) {
+				callback = options;
+				options = undefined;
+			}
+			$http.post(easAPI + apiUrl,apiParams,options).then(function(data) {
 				$scope.loading = false;
 				if(!data.data.status)
 					return callback(new Error(data.data.error));
@@ -584,6 +588,7 @@ angular.module('EASApp').controller('EASCtrl',
 				adbUnsure: true,
 				adbUnused: true,
 			}
+			$scope.context.imageFiles = [];
 			if($scope.context.bannerType=='image')
 				$scope.context.banner.images = {}
 			else
@@ -627,6 +632,7 @@ angular.module('EASApp').controller('EASCtrl',
 		
 		$scope.selectBanner = function(ban) {
 			$scope.context.banner = angular.copy(ban);
+			$scope.context.imageFiles = [];
 			ScrollTop();
 		}
 		
@@ -653,6 +659,34 @@ angular.module('EASApp').controller('EASCtrl',
 				}
 			});
 		}
+
+		$scope.$watch('context.imageFiles',function() {
+			if($scope.context.imageFiles.length==0)
+				return;
+			var imageFiles = $scope.context.imageFiles;
+			$scope.context.imageFiles = [];
+	        var fd = new FormData();
+	        fd.append('bid', $scope.context.banner.id);
+	        for(var i=0;i<imageFiles.length;i++)
+	        	fd.append('files[]', imageFiles[i]);
+			Call('/upload-banner-images',fd,{
+				transformRequest: angular.identity,
+	            headers: {
+	            	'Content-Type': undefined
+	            }
+	        }, function(err,data) {
+	        	if(err)
+	        		alert("Could not add file:",err);
+	        	else if($scope.context.banner) {
+	        		if(data.errors)
+	        			alert(data.errors.join("\n"));
+					$scope.context.banner.images = $scope.context.banner.images || {};
+					data.images.forEach(function(image) {
+						$scope.context.banner.images[image.id] = image;
+					});
+				}
+			});
+		});
 
 		$scope.newBannerText = function() {
 			Call('/make-id',{},function(err,data) {
@@ -1874,6 +1908,30 @@ angular.module('EASApp').filter('propsFilter', function() {
 	    return out;
 	  };
 	});
+
+angular.module('EASApp').directive('fileField', function() {
+	return {
+		require:'ngModel',
+		restrict: 'A',
+		link: function (scope, element, attrs, ngModel) {
+			var fileField = element.find('input');
+			fileField.bind('change', function(event) {
+				ngModel.$setViewValue(event.target.files);
+			});
+			fileField.bind('click',function(e){
+				e.stopPropagation();
+			});
+			element.bind('click',function(e){
+				e.preventDefault();
+				fileField[0].click()
+			});        
+		},
+		template:'<button class="btn" type="button"><ng-transclude></ng-transclude><input type="file" style="display:none" multiple="multiple"></button>',
+		replace:true,
+		transclude:true
+	};
+});
+
 
 angular.element(document).ready(function() {
 	angular.bootstrap(document, ['EASApp']);

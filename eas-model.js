@@ -612,6 +612,65 @@ module.exports = function(config) {
 		}
 	}
 	
+	exports.uploadBannerImages = function(bid,files,callback) {
+		var banner = ads.banner[bid];
+		if(!banner)
+			return callback(new Error("Unknown banner id "+bid));
+		var tasks = files.length+1;
+		var images = [];
+		var errors = [];
+		function Done(err) {
+			if(err)
+				errors.push(err.message || err);
+			if(--tasks==0) {
+				callback(null,{
+					images: images,
+					errors: errors,				
+				});
+			}
+		}
+		for(var i=0;i<files.length;i++) {
+			var file = files[i];
+			(function(file) {
+				var id = MakeShortId();
+				gm(file.path).size(function (err, size) {
+					if(err)
+						return Done(new Error(file.originalFilename+": could not read image size - "+err));
+					var sizeKey = size.width+"x"+size.height;
+					if(!config.allowedSizes[sizeKey])
+						return Done(new Error(file.originalFilename+": not an allowed size: "+sizeKey));
+	
+					var finalFile = config.files.tmp+"/"+id+".png";
+					gm(file.path)
+					.noProfile()
+					.write(finalFile, function (err) {
+						if(err)
+							return Done(new Error(file.originalFilename+": could not write image file - "+err));
+						var image = {
+							id: id,
+							size: sizeKey,
+						}
+						var frameFile = config.files.tmp+"/"+id+"-0.png";
+						fs.exists(frameFile,function(exists) {
+							if(exists) 
+								fs.rename(frameFile,finalFile,function(err) {
+									if(err)
+										return Done(new Error(file.originalFilename+": could not rename image file - "+err));
+									images.push(image);
+									return Done(null);	
+								});
+							else {
+								images.push(image);
+								return Done(null);												
+							}
+						});
+					});
+				});
+			})(files[i]);
+		}
+		Done();
+	}
+	
 	exports.clearStats = function(type,id,which,callback) {
 		if(typeof which=="string")
 			which = [which];

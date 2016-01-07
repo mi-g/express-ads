@@ -597,7 +597,7 @@
 
 					    <div class="form-group" ng-show="context.banner.type=='image'">
 					        <label for="ban-image" class="col-sm-2 control-label">Add image</label>
-					        <div class="col-sm-6" ng-class="{warning:context.addImageError}">
+					        <div class="col-sm-5" ng-class="{warning:context.addImageError}">
 
 								<div class="input-group">
 									<input type="text" class="form-control" id="ban-image"
@@ -611,9 +611,10 @@
 
 								<div ng-show="context.addImageError" class="error">{{context.addImageError}}</div>
 					        </div>
-					        <div class="col-sm-4 btn-group">
+					        <div class="col-sm-5 btn-group">
 					            	<a ng-click="addBannerImage()" class="btn btn-default">Load image</a>
 					            	<a ng-click="addBannerImageUrl()" class="btn btn-default">External URL</a>
+		                        	<button file-field class="btn btn-default" ng-model="context.imageFiles">Upload images</button>
 					        </div>
 					    </div>
 
