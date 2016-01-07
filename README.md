@@ -107,7 +107,7 @@ after doing so, the `req` object will contain the following new fields:
 
 Note that those parameters (styles, classes, tags) can also be set tuned from the admin interface. It's up to you to choose whatever styling method you want to use.
 
-`expressAds` is an object that provide access to a number of services:
+`expressAds` is an object that provides access to a number of services:
 
 | Param | Description |
 | ----- | ----------- |
@@ -160,7 +160,7 @@ It is a better practice to pass the styling options to the express-ads API `<%- 
 
 ## Express-ads admin interface integration
 
-By default, once express-ads is setup in your site, you can access the admin interface on `http://mysite.com/eas/admin`, however, since you site is likely to have its own admin user interface, you may want to integrate express-ads into it to keep a common look and feel.
+By default, once express-ads is setup in your site, you can access the admin interface on `http://mysite.com/eas/admin`, however, since your site is likely to have its own admin user interface, you may want to integrate express-ads into it to keep a common look and feel.
 
 The idea is to provide your own admin template and layout and insert it into your page:
 
