@@ -54,7 +54,24 @@ module.exports = function(app,config) {
 			stats: __dirname + "/stats.json",
 			tmp: __dirname + "/ads/tmp",
 			images: __dirname + "/ads/images",
-		}
+		},
+		allowedSizes: {
+			"120x240": 1,
+			"120x600": 1,
+			"120x60": 1,
+			"120x90": 1,
+			"125x125": 1,
+			"160x600": 1,
+			"180x150": 1,
+			"234-60": 1,
+			"240x400": 1,
+			"250x250": 1,
+			"300x250": 1,
+			"336x280": 1,
+			"468x60": 1,
+			"728x90": 1,
+			"88x31": 1,
+		},
 	},config);
 	config.adminPath = config.adminPath || (config.path + "/admin");
 	config.adminStyles['eas'] = config.adminPath + '/public/style.css'
@@ -339,6 +356,14 @@ module.exports = function(app,config) {
 		});
 	}
 	
+	function AllowedSizes() {
+		var sizes = [];
+		for(var s in config.allowedSizes)
+			if(config.allowedSizes[s])
+				sizes.push(s);
+		return sizes;
+	}
+	
 	app.post(adminApiPath + '/', function(req, res) {
 		AdminApiCall(req,res,function(req,cb) {
 			cb(null,{
@@ -351,6 +376,7 @@ module.exports = function(app,config) {
 				now: Date.now(),
 				version: modPackage.version,
 				adblockerDetection: config.adblockerDetection,
+				sizes: AllowedSizes(),
 			});
 		});		
 	});

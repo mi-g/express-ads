@@ -58,16 +58,7 @@ angular.module('EASApp').controller('EASCtrl',
 					angular.merge($scope.local,stored);
 				} catch(e) {}
 		}
-		var baseSizes = {
-		    "300x250": "300x250",
-		    "250x250": "250x250",
-		    "468x60": "468x60",
-		    "728x90": "728x90",
-		    "120x600": "120x600",
-		    "160x600": "160x600",
-		    "160x300": "160x300",
-		    "text": "Text",				
-		}
+		$scope.sizes = [];
 		$scope.campTypes = [
 		    {value: "background", label: "Background", vLabel: "Weight" },
 		    {value: "click", label: "Clicks", vLabel: "Total clicks" },
@@ -195,8 +186,11 @@ angular.module('EASApp').controller('EASCtrl',
 		};
 
 		function UpdateSizes(addons) {
-			$scope.sizes = [];
-			var sizes = angular.merge({},baseSizes);
+			var sizes = {text: "Text"};
+			if($scope.data.sizes)
+				$scope.data.sizes.forEach(function(size) {
+					sizes[size] = size;
+				});
 			for(var a in (addons || {}))
 				addons[a].sizes.forEach(function(size) {
 					size = size.toLowerCase()
@@ -208,7 +202,6 @@ angular.module('EASApp').controller('EASCtrl',
 				$scope.sizes.push({value: size, label: sizes[size]});
 			});
 		}
-		UpdateSizes();
 		
 		function UpdateBannerTypes(addons) {
 			$scope.bannerTypes = [];

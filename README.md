@@ -138,9 +138,34 @@ When doing `require('express-ads')(app,options)`, `options` is an object that ca
 | `debugData` | `false` | if set to `true`, the admin interface will display an additional containing the raw JSON data for ads config and stats |
 | `debugLiveTemplate` | `false` | if set to `true`, it won't be necessary to restart the server app to see changes in the admin user interface |
 | `imageMagick` | `false` | use *ImageMagik* to manipulate banner images. On *Ubuntu*, you can install *ImageMagick* with `apt-get install imagemagick` |
-| `addons` | null | an array of add-on modules. See below *Extending express-ads* |
+| `addons` | `null` | an array of add-on modules. See below *Extending express-ads* |
+| `allowedSizes` | see below | an object describing the available inventory areas sizes. A new size can be added by specifying a corresponding entry in `allowedSizes`, for instance `"123x456":1`. An existing size can be removed by setting its value to *0*: `"468x60":0`  
 
 plus a number of parameters dedicated to integrating the express-ads admin interface to the site's admin (see below).
+
+The default value for `allowedSizes` is:
+
+```
+		allowedSizes: {
+			"120x240": 1,
+			"120x600": 1,
+			"120x60": 1,
+			"120x90": 1,
+			"125x125": 1,
+			"160x600": 1,
+			"180x150": 1,
+			"234-60": 1,
+			"240x400": 1,
+			"250x250": 1,
+			"300x250": 1,
+			"336x280": 1,
+			"468x60": 1,
+			"728x90": 1,
+			"88x31": 1,
+		}
+```
+
+Note that additional sizes declared by addons are automatically made available.
 
 ## Display an ad in the template
 

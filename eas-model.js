@@ -534,8 +534,6 @@ module.exports = function(config) {
 		}
 	}
 	
-	const allowedSizes = {"300x250":1,"250x250":1,"468x60":1,"728x90":1,"120x600":1,"160x600":1,"160x300":1}
-	
 	exports.addBannerImage = function(bid,url,external,callback) {
 		var banner = ads.banner[bid];
 		if(!banner)
@@ -568,8 +566,8 @@ module.exports = function(config) {
 							if(err)
 								return callback(err);
 							var sizeKey = size.width+"x"+size.height;
-							if(!allowedSizes[sizeKey])
-								return callback(new Error("Invalid size "+sizeKey+". Allowed: "+Object.keys(allowedSizes).join(", ")));
+							if(!config.allowedSizes[sizeKey])
+								return callback(new Error("Unsupported size "+sizeKey));
 	
 							if(external) {
 								var images = banner.images;
