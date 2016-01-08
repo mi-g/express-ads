@@ -862,11 +862,11 @@ module.exports = function(config, callback) {
 				}
 			}
 			if(banner.countryType!="any") {
-				if(banner.osType=="in") {
-					if(!(options.country && banner.oss.indexOf(options.country)>=0))
+				if(banner.countryType=="in") {
+					if(!(options.country && banner.countries.indexOf(options.country)>=0))
 						continue;
 				} else {
-					if(!(options.country && banner.oss.indexOf(options.country)<0))
+					if(!(options.country && banner.countries.indexOf(options.country)<0))
 						continue;				
 				}
 			}

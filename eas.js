@@ -10,6 +10,7 @@ var ejs = require('ejs');
 var extend = require('extend');
 var path = require('path');
 var multipart = require('connect-multiparty');
+var geoip = require('geoip-lite');
 
 var modPackage = require('./package');
 
@@ -228,7 +229,7 @@ module.exports = function(app,config) {
 			if(!req.expressAdsData)
 				req.expressAdsData = {};
 			var ad = Model(req).pick(iid,{
-				country: req.country || null,
+				country: req.easCountry || null,
 				browser: req.browser || null,
 				sessHist: req.session ? req.session.expressAds : null,
 				pageHist: req.expressAdsData,
@@ -559,7 +560,21 @@ module.exports = function(app,config) {
 	
 	app.expressAds = eas;
 
+	geoip.startWatchingDataUpdate();
+	
 	app.use(function(req,res,next) {
+		if(req.session) {
+			if(req.session.easCountry===undefined) {
+				var geo = geoip.lookup(req.ip);
+				if(geo)
+					req.session.easCountry = req.easCountry = geo.country || null; 
+			} else
+				req.easCountry = geo.country; 				
+		} else {
+			var geo = geoip.lookup(req.ip);
+			if(geo && geo.country)
+				req.easCountry = geo.country;
+		}
 		req.expressAds = eas;
 		req.deliverAd = Deliver(req);
 		next();		
