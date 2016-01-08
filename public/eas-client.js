@@ -1845,7 +1845,7 @@ angular.module('EASApp').directive('vdhDateTimePicker',
             	"  <input type='text'"+
                 "     class='form-control'/>"+
                 "  <span class='input-group-addon'>"+
-             	"    <em class='glyphicon glyphicon-calendar'></em></span>"+
+             	"    <em class='fa fa-calendar'></em></span>"+
              	"</div>",
             scope: {},
             link: function (scope, elem, attrs,ngModel) {
