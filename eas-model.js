@@ -29,7 +29,9 @@ const periodTypes = {
 
 const SIZE_RE = new RegExp("^([0-9]+)x([0-9]+)$");
 
-module.exports = function(config) {
+module.exports = function(config, callback) {
+	
+	var exports = {};
 
 	var adsEmpty = {
 		inventory: {
@@ -225,14 +227,15 @@ module.exports = function(config) {
 	
 	const periodDuration = 60 * 60 * 1000;
 	
-	setInterval(function() {
-		if(modified.stats)
-			SaveToFile('stats');
-		var now = Date.now();
-		for(var iid in stats.roll)
-			if(now - stats.roll[iid].lastHitTime > config.rollExpire)
-				delete stats.roll[iid];
-	},60*1000);
+	if(!config.demoMode)
+		setInterval(function() {
+			if(modified.stats)
+				SaveToFile('stats');
+			var now = Date.now();
+			for(var iid in stats.roll)
+				if(now - stats.roll[iid].lastHitTime > config.rollExpire)
+					delete stats.roll[iid];
+		},60*1000);
 	
 	var missedInventory = {};
 	
@@ -324,11 +327,13 @@ module.exports = function(config) {
 		return extend(true,{},statsEmpty,stats);
 	}
 	
+	var loaded = {}
 	function LoadFromFile(which) {
 		fs.readFile(config.files[which],"utf-8",function(err,data) {
-			if(err)
+			if(err) {
 				console.warn("Could not load",config.files[which],":",err);
-			else try {
+				modified[which] = true;
+			} else try {
 				switch(which) {
 				case "ads": 
 					ads = FixAds(JSON.parse(data));
@@ -339,10 +344,12 @@ module.exports = function(config) {
 					break;
 				}
 				modified[which] = false;
-				return;
 			} catch(e) {
 				console.error("Could not parse",config.files[which],":",e,e.stack);			
 			}
+			loaded[which] = true;
+			if(callback && ((which=='stats' && loaded.ads) || (which=='ads' && loaded.stats)))
+				callback();
 		});
 	}
 	LoadFromFile("ads");
@@ -354,6 +361,11 @@ module.exports = function(config) {
 	}
 	
 	function SaveToFile(which,callback) {
+		if(config.demoMode) {
+			if(callback)
+				callback();
+			return;
+		}
 		if(saveInProgress[which]) {
 			modified[which]=true;
 		} else {
@@ -500,24 +512,26 @@ module.exports = function(config) {
 				if(banner.images[iid].url)
 					continue;
 				tasks++;
-				var imagePath = config.files.images+"/"+iid+".png" 
-				fs.exists(imagePath,function(exists) {
-					if(exists)
-						return Done();
-					var tmpPath = config.files.tmp+"/"+iid+".png"; 
-					fs.exists(tmpPath,function(exists) {
-						if(exists) {
-							fs.rename(tmpPath,imagePath,function(err) {
-								if(err)
-									delete banner.images[iid];
-								Done();
-							});
-						} else {
-							delete banner.images[iid];
+				(function(iid) {
+					var imagePath = config.files.images+"/"+iid+".png" 
+					fs.exists(imagePath,function(exists) {
+						if(exists)
 							return Done();
-						}						
+						var tmpPath = config.files.tmp+"/"+iid+".png"; 
+						fs.exists(tmpPath,function(exists) {
+							if(exists) {
+								fs.rename(tmpPath,imagePath,function(err) {
+									if(err)
+										delete banner.images[iid];
+									Done();
+								});
+							} else {
+								delete banner.images[iid];
+								return Done();
+							}						
+						});
 					});
-				});
+				})(iid);
 			}
 			Done();
 		} else {
