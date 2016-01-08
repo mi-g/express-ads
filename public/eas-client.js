@@ -678,7 +678,7 @@ angular.module('EASApp').controller('EASCtrl',
 	        	if(err)
 	        		alert("Could not add file:",err);
 	        	else if($scope.context.banner) {
-	        		if(data.errors)
+	        		if(data.errors.length>0)
 	        			alert(data.errors.join("\n"));
 					$scope.context.banner.images = $scope.context.banner.images || {};
 					data.images.forEach(function(image) {
