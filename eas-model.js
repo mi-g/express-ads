@@ -459,6 +459,12 @@ module.exports = function(config, callback) {
 	exports.removeInventory = function(iid) {
 		if(ads.inventory[iid]) {
 			delete ads.inventory[iid];
+			for(var bid in ads.banner) {
+				var banner = ads.banner[bid];
+				var i = banner.inventory.indexOf(iid);
+				if(i>=0)
+					banner.inventory.splice(i,1);
+			}
 			Updated('ads');
 		}
 	
@@ -544,6 +550,12 @@ module.exports = function(config, callback) {
 	exports.removeBanner = function(iid) {
 		if(ads.banner[iid]) {
 			delete ads.banner[iid];
+			for(var cid in ads.campaign) {
+				var campaign = ads.campaign[cid];
+				var i = campaign.banners.indexOf(iid);
+				if(i>=0)
+					campaigb.banners.splice(i,1);
+			}
 			Updated('ads');
 		}
 	}
