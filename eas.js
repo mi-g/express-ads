@@ -11,6 +11,7 @@ var extend = require('extend');
 var path = require('path');
 var multipart = require('connect-multiparty');
 var geoip = require('geoip-lite');
+var browser = require("ua-parser");
 
 var modPackage = require('./package');
 
@@ -212,9 +213,9 @@ module.exports = function(app,config) {
 			if(req.session) {
 				if(!req.session.expressAds) {
 					req.session.expressAds = {};
-					if(req.browser) {
-						osFamilies[req.browser.os.family.toLowerCase()] = req.browser.os.family; 
-						browserFamilies[req.browser.ua.family.toLowerCase()] = req.browser.ua.family; 
+					if(req.easBrowser) {
+						osFamilies[req.easBrowser.os.family.toLowerCase()] = req.easBrowser.os.family; 
+						browserFamilies[req.easBrowser.ua.family.toLowerCase()] = req.easBrowser.ua.family; 
 					}
 				}
 				if(config.adblockerDetection && !req.expressAdsAdbRequested) {
@@ -230,8 +231,8 @@ module.exports = function(app,config) {
 				req.expressAdsData = {};
 			var ad = Model(req).pick(iid,{
 				country: req.easCountry || null,
-				browser: req.browser || null,
-				sessHist: req.session ? req.session.expressAds : null,
+				browser: req.easBrowser || null,
+				sessHist: (req.session && req.session.expressAds) || null,
 				pageHist: req.expressAdsData,
 				adBlocker: adBlocker,
 			});
@@ -569,11 +570,17 @@ module.exports = function(app,config) {
 				if(geo)
 					req.session.easCountry = req.easCountry = geo.country || null; 
 			} else
-				req.easCountry = geo.country; 				
+				req.easCountry = req.session.easCountry; 				
+			if(req.session.easBrowser===undefined) {
+				req.session.easBrowser = req.easBrowser = browser.parse(req.headers['user-agent']) || null; 
+			} else
+				req.easBrowser = req.session.easBrowser; 				
 		} else {
+			req.easCountry = null;
 			var geo = geoip.lookup(req.ip);
-			if(geo && geo.country)
-				req.easCountry = geo.country;
+			if(geo)
+				req.easCountry = geo.country || null;
+			req.easBrowser = browser.parse(req.headers['user-agent']) || null;
 		}
 		req.expressAds = eas;
 		req.deliverAd = Deliver(req);

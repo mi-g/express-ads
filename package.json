@@ -25,6 +25,7 @@
 		"request": "^2.67.0",
 		"gm": "^1.21.1",
 		"connect-multiparty": "^2.0.0",
-	    "geoip-lite": "^1.1.6"
+	    "geoip-lite": "^1.1.6",
+	    "ua-parser": "^0.3.5"
 	}
 }
