@@ -64,7 +64,7 @@ module.exports = function(app,config) {
 			"125x125": 1,
 			"160x600": 1,
 			"180x150": 1,
-			"234-60": 1,
+			"234x60": 1,
 			"240x400": 1,
 			"250x250": 1,
 			"300x250": 1,
@@ -74,6 +74,8 @@ module.exports = function(app,config) {
 			"88x31": 1,
 		},
 		allowUpload: true,
+		demoMode: false,
+		demoExpire: 10*60*1000,
 	},config);
 	config.adminPath = config.adminPath || (config.path + "/admin");
 	config.adminStyles['eas'] = config.adminPath + '/public/style.css'
@@ -81,9 +83,54 @@ module.exports = function(app,config) {
 
 	var adminApiPath = config.adminPath + "/api";
 
+	if(config.demoMode)
+		app.use(function(req,res,next) {
+			if(!req.session)
+				throw new Error("EAS - No session");
+			var model = null;
+			if(req.session.modelId)
+				model = demoModels[req.session.modelId];
+			if(!model) {
+				req.session.modelId = "" + Math.random();
+				model = {
+					model: require('./eas-model')(config,function() {
+						next();
+					}),
+					lastUsed: Date.now(),
+				}
+				demoModels[req.session.modelId] = model;
+				req.easDemoModel = model.model;				
+			} else {
+				req.easDemoModel = model.model;
+				next();
+			}
+		});
+	
 	app.all(config.adminPath+'*',config.auth);
 
 	var ads = require('./eas-model')(config);
+	
+	var demoModels = {};
+	if(config.demoMode)
+		setInterval(function() {
+			var now = Date.now();
+			for(var m in demoModels) {
+				var model = demoModels[m];
+				if(now-model.lastUsed > config.demoExpire) {
+					console.info("Expired demo model",m);
+					delete demoModels[m];
+				}
+			}
+		},60*1000);
+	
+	function Model(req) {
+		if(config.demoMode) {
+			if(!req.easDemoModel)
+				throw new Error("EAS - No session");
+			return req.easDemoModel; 
+		} else
+			return ads;
+	}
 	
 	var styles = [];
 	stylesNames.forEach(function(styleName) {
@@ -180,7 +227,7 @@ module.exports = function(app,config) {
 			}
 			if(!req.expressAdsData)
 				req.expressAdsData = {};
-			var ad = ads.pick(iid,{
+			var ad = Model(req).pick(iid,{
 				country: req.country || null,
 				browser: req.browser || null,
 				sessHist: req.session ? req.session.expressAds : null,
@@ -295,7 +342,7 @@ module.exports = function(app,config) {
 	});
 	
 	app.get(config.path + '/:invid/:camid/:banid/:imaid',function(req,res) {
-		var link = ads.click(req.params.invid,req.params.camid,req.params.banid,req.params.imaid);
+		var link = Model(req).click(req.params.invid,req.params.camid,req.params.banid,req.params.imaid);
 		if(link) {
 			link = link.replace("{{INV}}",req.params.invid)
 				.replace("{{CAM}}",req.params.camid)
@@ -320,22 +367,24 @@ module.exports = function(app,config) {
 	});
 
 	app.get(config.path + '/images/:file',function(req,res) {
-		var filePath =  path.resolve(__dirname,"ads/images/"+req.params.file);
-		if(filePath.indexOf(__dirname+"/ads/images/")==0) {
+		var filePath =  path.resolve(config.files.images,req.params.file);
+		if(filePath.indexOf(config.files.images)==0) {
 			fs.exists(filePath,function(exists) {
 				if(exists)
 					res.header('Cache-Control','public, max-age='+config.staticMaxAge)
 						.sendFile(filePath);
 				else {
-					filePath = path.resolve(__dirname,"ads/tmp/"+req.params.file);
-					res.header('Cache-Control','public, max-age='+config.staticMaxAge)
-						.sendFile(filePath);
+					filePath = path.resolve(config.files.tmp,req.params.file);
+					if(filePath.indexOf(config.files.tmp)==0) 
+						res.header('Cache-Control','public, max-age='+config.staticMaxAge)
+							.sendFile(filePath);
+					else
+						res.status(403).send("Forbidden");
 				}
 			});
 		} else // TODO hack attempt = block IP
 			res.status(403).send("Forbidden");
 	});
-
 	
 	function AdminApiCall(req,res,method) {
 		method(req,function(err,data) {
@@ -369,10 +418,10 @@ module.exports = function(app,config) {
 	app.post(adminApiPath + '/', function(req, res) {
 		AdminApiCall(req,res,function(req,cb) {
 			cb(null,{
-				missed: ads.getMissedInventory(),
-				ads: ads.getAds(),
-				stats: ads.getStats(),
-				addons: ads.getAddons(),
+				missed: Model(req).getMissedInventory(),
+				ads: Model(req).getAds(),
+				stats: Model(req).getStats(),
+				addons: Model(req).getAddons(),
 				osFamilies: osFamilies,
 				browserFamilies: browserFamilies,
 				now: Date.now(),
@@ -387,14 +436,14 @@ module.exports = function(app,config) {
 	app.post(adminApiPath + '/set-inventory', function(req, res) {
 		AdminApiCall(req,res,function(req,cb) {
 			cb(null,{
-				inventory: ads.setInventory(req.body.inventory),
+				inventory: Model(req).setInventory(req.body.inventory),
 			});
 		});		
 	});
 
 	app.post(adminApiPath + '/remove-inventory', function(req, res) {
 		AdminApiCall(req,res,function(req,cb) {
-			ads.removeInventory(req.body.iid);
+			Model(req).removeInventory(req.body.iid);
 			cb(null,{});
 		});		
 	});
@@ -402,21 +451,21 @@ module.exports = function(app,config) {
 	app.post(adminApiPath + '/set-campaign', function(req, res) {
 		AdminApiCall(req,res,function(req,cb) {
 			cb(null,{
-				campaign: ads.setCampaign(req.body.campaign),
+				campaign: Model(req).setCampaign(req.body.campaign),
 			});
 		});		
 	});
 
 	app.post(adminApiPath + '/remove-campaign', function(req, res) {
 		AdminApiCall(req,res,function(req,cb) {
-			ads.removeCampaign(req.body.iid);
+			Model(req).removeCampaign(req.body.iid);
 			cb(null,{});
 		});		
 	});
 
 	app.post(adminApiPath + '/set-banner', function(req, res) {
 		AdminApiCall(req,res,function(req,cb) {
-			ads.setBanner(req.body.banner,function(banner) {
+			Model(req).setBanner(req.body.banner,function(banner) {
 				cb(null,{
 					banner: banner,
 				});				
@@ -426,14 +475,14 @@ module.exports = function(app,config) {
 
 	app.post(adminApiPath + '/remove-banner', function(req, res) {
 		AdminApiCall(req,res,function(req,cb) {
-			ads.removeBanner(req.body.iid);
+			Model(req).removeBanner(req.body.iid);
 			cb(null,{});
 		});		
 	});
 
 	app.post(adminApiPath + '/add-banner-image', function(req, res) {
 		AdminApiCall(req,res,function(req,cb) {
-			ads.addBannerImage(req.body.bid,req.body.url,false,function(err,image) {
+			Model(req).addBannerImage(req.body.bid,req.body.url,false,function(err,image) {
 				cb(err,{image:image});				
 			});
 		});		
@@ -441,7 +490,7 @@ module.exports = function(app,config) {
 
 	app.post(adminApiPath + '/add-banner-image-url', function(req, res) {
 		AdminApiCall(req,res,function(req,cb) {
-			ads.addBannerImage(req.body.bid,req.body.url,true,function(err,image) {
+			Model(req).addBannerImage(req.body.bid,req.body.url,true,function(err,image) {
 				cb(err,{image:image});				
 			});
 		});		
@@ -449,7 +498,7 @@ module.exports = function(app,config) {
 
 	app.post(adminApiPath + '/clear-stats', function(req, res) {
 		AdminApiCall(req,res,function(req,cb) {
-			ads.clearStats(req.body.type,req.body.id,req.body.which,function(err) {
+			Model(req).clearStats(req.body.type,req.body.id,req.body.which,function(err) {
 				cb(err,{});				
 			});
 		});		
@@ -457,7 +506,7 @@ module.exports = function(app,config) {
 
 	app.post(adminApiPath + '/active-group', function(req, res) {
 		AdminApiCall(req,res,function(req,cb) {
-			ads.activeGroup(req.body.type,req.body.active,req.body.ids,function(err) {
+			Model(req).activeGroup(req.body.type,req.body.active,req.body.ids,function(err) {
 				cb(err,{});				
 			});
 		});		
@@ -465,7 +514,7 @@ module.exports = function(app,config) {
 
 	app.post(adminApiPath + '/remove-group', function(req, res) {
 		AdminApiCall(req,res,function(req,cb) {
-			ads.removeGroup(req.body.type,req.body.ids,function(err) {
+			Model(req).removeGroup(req.body.type,req.body.ids,function(err) {
 				cb(err,{});				
 			});
 		});		
@@ -473,13 +522,13 @@ module.exports = function(app,config) {
 
 	app.post(adminApiPath + '/make-id', function(req, res) {
 		AdminApiCall(req,res,function(req,cb) {
-			cb(null,ads.makeId());
+			cb(null,Model(req).makeId());
 		});		
 	});
 
 	app.post(adminApiPath + '/set-addons', function(req, res) {
 		AdminApiCall(req,res,function(req,cb) {
-			ads.setAddons(req.body.addons,function() {
+			Model(req).setAddons(req.body.addons,function() {
 				cb(null,{});				
 			});
 		});		
@@ -492,7 +541,7 @@ module.exports = function(app,config) {
 
 	app.post(adminApiPath + '/upload-banner-images', function(req, res) {
 		AdminApiCall(req,res,function(req,cb) {
-			ads.uploadBannerImages(req.body.bid,req.files.files,function(err,result) {
+			Model(req).uploadBannerImages(req.body.bid,req.files.files,function(err,result) {
 				cb(err,result);				
 			});
 		});
@@ -505,16 +554,16 @@ module.exports = function(app,config) {
 		stylesHTML: stylesHTML,
 		scripts: scripts,
 		scriptsHTML: scriptsHTML,
-		saveStats: ads.saveStats,
+		saveStats: config.demoMode ? function(cb) { cb(); } : ads.saveStats,
 	}
 	
 	app.expressAds = eas;
-	
+
 	app.use(function(req,res,next) {
 		req.expressAds = eas;
 		req.deliverAd = Deliver(req);
-		next();
+		next();		
 	});
-	
+		
 	return eas; 
 }
