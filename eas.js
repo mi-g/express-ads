@@ -100,7 +100,10 @@ module.exports = function(app,config) {
 					}),
 					lastUsed: Date.now(),
 				}
-				console.info("Created demo model",req.session.modelId,req.ip);
+				var demoCount = 0;
+				for(var id in demoModels)
+					demoCount ++;
+				console.info("Created demo model",req.session.modelId,req.ip,demoCount,req.headers['user-agent']);
 				demoModels[req.session.modelId] = model;
 				req.easDemoModel = model.model;				
 			} else {
