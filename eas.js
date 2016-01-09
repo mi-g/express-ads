@@ -78,6 +78,7 @@ module.exports = function(app,config) {
 		allowUpload: true,
 		demoMode: false,
 		demoExpire: 10*60*1000,
+		demoModeDebug: false,
 	},config);
 	config.adminPath = config.adminPath || (config.path + "/admin");
 	config.adminStyles['eas'] = config.adminPath + '/public/style.css'
@@ -100,10 +101,12 @@ module.exports = function(app,config) {
 					}),
 					lastUsed: Date.now(),
 				}
-				var demoCount = 0;
-				for(var id in demoModels)
-					demoCount ++;
-				console.info("Created demo model",req.session.modelId,req.ip,demoCount,req.headers['user-agent']);
+				if(config.demoModeDebug) {
+					var demoCount = 0;
+					for(var id in demoModels)
+						demoCount ++;
+						console.info("Created demo model",req.session.modelId,req.ip,demoCount,req.headers['user-agent']);
+				}
 				demoModels[req.session.modelId] = model;
 				req.easDemoModel = model.model;				
 			} else {
@@ -123,7 +126,8 @@ module.exports = function(app,config) {
 			for(var m in demoModels) {
 				var model = demoModels[m];
 				if(now-model.lastUsed > config.demoExpire) {
-					console.info("Expired demo model",m);
+					if(config.demoModeDebug)
+						console.info("Expired demo model",m);
 					delete demoModels[m];
 				}
 			}
