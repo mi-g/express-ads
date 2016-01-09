@@ -4,6 +4,10 @@ Express Ads
 *Express Ads* provides a lightweight simple way to deliver ads in an Express-based web site. It works with any template engine and
 provides a nice admin interface.
 
+# Live demo
+
+Visit [demo.eas.rocks](http://demo.eas.rocks/) . The full source code of the live demo site is available from [github](https://github.com/mi-g/express-ads-demo). It may be useful to better understand how to implement *express-ads* in your web site.
+
 # Features
 
 - Multiple concurrent campaigns
@@ -28,7 +32,6 @@ provides a nice admin interface.
 ## Screenshots
 
 [![ScreenShot](https://eas.rocks/images/screenshot1-thumb.jpg)](https://eas.rocks/images/screenshot1.jpg)
-[![ScreenShot](https://eas.rocks/images/screenshot2-thumb.jpg)](https://eas.rocks/images/screenshot2.jpg)
 [![ScreenShot](https://eas.rocks/images/screenshot3-thumb.jpg)](https://eas.rocks/images/screenshot3.jpg)
 
 # Using Express Ads (short version)
