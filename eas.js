@@ -100,7 +100,7 @@ module.exports = function(app,config) {
 					}),
 					lastUsed: Date.now(),
 				}
-				console.info("Created demo model",req.session.modelId);
+				console.info("Created demo model",req.session.modelId,req.ip);
 				demoModels[req.session.modelId] = model;
 				req.easDemoModel = model.model;				
 			} else {
